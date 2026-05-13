@@ -6,7 +6,7 @@ use Geekset\OctaneDoctor\Exceptions\InvalidRule;
 use Geekset\OctaneDoctor\Rules\Rule;
 use Illuminate\Contracts\Foundation\Application;
 
-/*
+/**
  * Resolves rule classes (built-in and host-provided) into instances
  * for the Scanner to execute. Built-in and custom lists are kept
  * separate so users can disable shipped rules in config without

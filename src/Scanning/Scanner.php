@@ -5,7 +5,7 @@ namespace Geekset\OctaneDoctor\Scanning;
 use Geekset\OctaneDoctor\Finding;
 use Geekset\OctaneDoctor\Rules\Rule;
 
-/*
+/**
  * Owns the scan lifecycle: invokes each rule against the shared
  * ScanContext, collects findings into a single list, sorts them, and
  * captures the run duration. Rules themselves stay framework-version

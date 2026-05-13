@@ -10,7 +10,7 @@ use Geekset\OctaneDoctor\Scanning\ScanResult;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Foundation\Application;
 
-/*
+/**
  * Entry point for `php artisan octane-doctor:scan`. Wires the
  * configured rules and paths into a Scanner run, renders findings to
  * the terminal, and chooses the exit code so the command is usable as
@@ -39,13 +39,12 @@ class ScanCommand extends Command
     }
 
     /**
-     * @return array<int, string>
-     */
-    /*
      * Drop missing directories silently. Legacy apps frequently keep
      * config entries that no longer exist (custom domain folders,
      * removed modules); failing the scan over a stale path would block
      * adoption without telling the user anything they can act on.
+     *
+     * @return array<int, string>
      */
     protected function resolvePaths(): array
     {
