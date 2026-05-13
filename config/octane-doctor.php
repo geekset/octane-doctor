@@ -12,6 +12,12 @@ return [
     'fail_on' => 'high',
 
     /*
+     * Default output format for the scan command. Override per run
+     * with --format. Supported: table, json.
+     */
+    'output' => 'table',
+
+    /*
      * Application paths to scan. Defaults to app/ and config/. Add or
      * remove paths to scope the scan to specific parts of the codebase.
      */
