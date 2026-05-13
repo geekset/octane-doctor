@@ -1,5 +1,7 @@
 <?php
 
+use Geekset\OctaneDoctor\Rules\Builtin\MutableStaticState;
+
 return [
 
     /*
@@ -24,6 +26,7 @@ return [
      * changing the service provider.
      */
     'rules' => [
+        MutableStaticState::class,
     ],
 
     /*
