@@ -26,6 +26,27 @@ use PhpParser\NodeVisitorAbstract;
  */
 class MutableStaticState implements Rule
 {
+    /**
+     * Static property overrides on framework base classes that are
+     * documented to be set once at class-definition time. These behave
+     * like configuration constants under Octane, not request state,
+     * and would otherwise dominate the noise on a typical Laravel app.
+     *
+     * @var array<string, array<int, string>>
+     */
+    protected const SAFE_PARENT_OVERRIDES = [
+        'Illuminate\\Http\\Resources\\Json\\JsonResource' => ['wrap'],
+        'Illuminate\\Http\\Resources\\Json\\ResourceCollection' => ['wrap'],
+        'Illuminate\\Http\\Resources\\Json\\AnonymousResourceCollection' => ['wrap'],
+        'Illuminate\\Database\\Eloquent\\Model' => [
+            'snakeAttributes',
+            'unguarded',
+            'modelsShouldPreventLazyLoading',
+            'modelsShouldPreventSilentlyDiscardingAttributes',
+            'modelsShouldPreventAccessingMissingAttributes',
+        ],
+    ];
+
     public function __construct(
         protected FileWalker $walker,
     ) {}
@@ -62,24 +83,47 @@ class MutableStaticState implements Rule
      */
     protected function inspect(ParsedFile $parsed): iterable
     {
-        $visitor = new class extends NodeVisitorAbstract
+        $safeOverrides = self::SAFE_PARENT_OVERRIDES;
+
+        $visitor = new class($safeOverrides) extends NodeVisitorAbstract
         {
             /** @var array<int, array{className: string, propertyName: string, line: int}> */
             public array $hits = [];
 
             protected ?string $currentClass = null;
 
+            protected ?string $currentParent = null;
+
+            /**
+             * @param  array<string, array<int, string>>  $safeOverrides
+             */
+            public function __construct(
+                protected array $safeOverrides,
+            ) {}
+
             public function enterNode(Node $node): null
             {
-                if ($node instanceof Class_ || $node instanceof Trait_) {
+                if ($node instanceof Class_) {
                     $this->currentClass = $node->namespacedName?->toString() ?? $node->name?->toString();
+                    $this->currentParent = $node->extends?->toString();
+                }
+
+                if ($node instanceof Trait_) {
+                    $this->currentClass = $node->namespacedName?->toString() ?? $node->name?->toString();
+                    $this->currentParent = null;
                 }
 
                 if ($node instanceof Property && $node->isStatic()) {
                     foreach ($node->props as $prop) {
+                        $propertyName = $prop->name->toString();
+
+                        if ($this->isSafeOverride($propertyName)) {
+                            continue;
+                        }
+
                         $this->hits[] = [
                             'className' => $this->currentClass ?? '<anonymous>',
-                            'propertyName' => $prop->name->toString(),
+                            'propertyName' => $propertyName,
                             'line' => $node->getStartLine(),
                         ];
                     }
@@ -92,9 +136,21 @@ class MutableStaticState implements Rule
             {
                 if ($node instanceof Class_ || $node instanceof Trait_) {
                     $this->currentClass = null;
+                    $this->currentParent = null;
                 }
 
                 return null;
+            }
+
+            protected function isSafeOverride(string $propertyName): bool
+            {
+                if ($this->currentParent === null) {
+                    return false;
+                }
+
+                $safeProperties = $this->safeOverrides[$this->currentParent] ?? [];
+
+                return in_array($propertyName, $safeProperties, true);
             }
         };
 
