@@ -14,7 +14,7 @@ use Illuminate\Contracts\Foundation\Application;
  * Entry point for `php artisan octane-doctor:scan`. Wires the
  * configured rules and paths into a Scanner run, renders findings to
  * the terminal, and chooses the exit code so the command is usable as
- * a CI gate (spec sections 12.1 and 18).
+ * a CI gate.
  */
 class ScanCommand extends Command
 {
@@ -103,8 +103,8 @@ class ScanCommand extends Command
     /*
      * Null means "never fail the build" so teams can run the scanner
      * as an informational step before they trust it in CI. The "never"
-     * string is accepted in config for the same reason (spec section
-     * 22, risk: overpromising Octane safety).
+     * string is accepted in config for the same reason: lets a team
+     * adopt the package without committing to a hard gate up front.
      */
     protected function resolveThreshold(): ?Severity
     {
