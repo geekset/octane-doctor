@@ -63,3 +63,33 @@ it('returns an empty result when no paths exist', function () {
 
     expect($findings)->toBe([]);
 });
+
+it('skips JsonResource::$wrap overrides because they are class-definition config, not request state', function () {
+    $findings = runMutableStaticStateRule($this->fixturesPath);
+
+    $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
+
+    expect($symbols)->not->toContain(
+        'Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeResourceWrap::$wrap'
+    );
+});
+
+it('skips Eloquent Model::$snakeAttributes and Model::$unguarded overrides', function () {
+    $findings = runMutableStaticStateRule($this->fixturesPath);
+
+    $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
+
+    expect($symbols)
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeEloquentOverrides::$snakeAttributes')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeEloquentOverrides::$unguarded');
+});
+
+it('still flags non-allow-listed static properties on resources that override $wrap', function () {
+    $findings = runMutableStaticStateRule($this->fixturesPath);
+
+    $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
+
+    expect($symbols)
+        ->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\UnsafeResourceWithExtraStatic::$cache')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\UnsafeResourceWithExtraStatic::$wrap');
+});
