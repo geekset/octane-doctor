@@ -10,6 +10,12 @@ use Geekset\OctaneDoctor\Scanning\ScanResult;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Foundation\Application;
 
+/*
+ * Entry point for `php artisan octane-doctor:scan`. Wires the
+ * configured rules and paths into a Scanner run, renders findings to
+ * the terminal, and chooses the exit code so the command is usable as
+ * a CI gate (spec sections 12.1 and 18).
+ */
 class ScanCommand extends Command
 {
     public $signature = 'octane-doctor:scan
@@ -34,6 +40,12 @@ class ScanCommand extends Command
 
     /**
      * @return array<int, string>
+     */
+    /*
+     * Drop missing directories silently. Legacy apps frequently keep
+     * config entries that no longer exist (custom domain folders,
+     * removed modules); failing the scan over a stale path would block
+     * adoption without telling the user anything they can act on.
      */
     protected function resolvePaths(): array
     {
@@ -88,6 +100,12 @@ class ScanCommand extends Command
         return $result->hasFindingAtOrAbove($threshold) ? self::FAILURE : self::SUCCESS;
     }
 
+    /*
+     * Null means "never fail the build" so teams can run the scanner
+     * as an informational step before they trust it in CI. The "never"
+     * string is accepted in config for the same reason (spec section
+     * 22, risk: overpromising Octane safety).
+     */
     protected function resolveThreshold(): ?Severity
     {
         $configured = $this->option('fail-on') ?? config('octane-doctor.fail_on');
