@@ -1,12 +1,12 @@
 {
-    "name": "gayansanjeewa/octane-doctor",
+    "name": "geekset/octane-doctor",
     "description": "Laravel Octane readiness scanner. Detects long-lived worker risks in Laravel apps.",
     "keywords": [
         "Gayan Sanjeewa",
         "laravel",
         "octane-doctor"
     ],
-    "homepage": "https://github.com/gayansanjeewa/octane-doctor",
+    "homepage": "https://github.com/geekset/octane-doctor",
     "license": "MIT",
     "authors": [
         {
@@ -35,12 +35,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Gayansanjeewa\\OctaneDoctor\\": "src/"
+            "Geekset\\OctaneDoctor\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Gayansanjeewa\\OctaneDoctor\\Tests\\": "tests/",
+            "Geekset\\OctaneDoctor\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -62,10 +62,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Gayansanjeewa\\OctaneDoctor\\OctaneDoctorServiceProvider"
+                "Geekset\\OctaneDoctor\\OctaneDoctorServiceProvider"
             ],
             "aliases": {
-                "OctaneDoctor": "Gayansanjeewa\\OctaneDoctor\\Facades\\OctaneDoctor"
+                "OctaneDoctor": "Geekset\\OctaneDoctor\\Facades\\OctaneDoctor"
             }
         }
     },

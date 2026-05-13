@@ -1,5 +1,5 @@
 <?php
 
-use Gayansanjeewa\OctaneDoctor\Tests\TestCase;
+use Geekset\OctaneDoctor\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);

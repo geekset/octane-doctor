@@ -1,6 +1,6 @@
 <?php
 
-// config for Gayansanjeewa/OctaneDoctor
+// config for Geekset/OctaneDoctor
 return [
 
 ];

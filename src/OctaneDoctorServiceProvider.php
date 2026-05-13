@@ -1,8 +1,8 @@
 <?php
 
-namespace Gayansanjeewa\OctaneDoctor;
+namespace Geekset\OctaneDoctor;
 
-use Gayansanjeewa\OctaneDoctor\Commands\OctaneDoctorCommand;
+use Geekset\OctaneDoctor\Commands\OctaneDoctorCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 

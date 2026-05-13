@@ -1,8 +1,8 @@
 <?php
 
-namespace Gayansanjeewa\OctaneDoctor\Tests;
+namespace Geekset\OctaneDoctor\Tests;
 
-use Gayansanjeewa\OctaneDoctor\OctaneDoctorServiceProvider;
+use Geekset\OctaneDoctor\OctaneDoctorServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra

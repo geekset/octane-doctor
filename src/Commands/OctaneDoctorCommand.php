@@ -1,6 +1,6 @@
 <?php
 
-namespace Gayansanjeewa\OctaneDoctor\Commands;
+namespace Geekset\OctaneDoctor\Commands;
 
 use Illuminate\Console\Command;
 

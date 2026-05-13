@@ -1,5 +1,5 @@
 <?php
 
-namespace Gayansanjeewa\OctaneDoctor;
+namespace Geekset\OctaneDoctor;
 
 class OctaneDoctor {}

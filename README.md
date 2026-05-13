@@ -1,9 +1,9 @@
 # Laravel Octane readiness scanner. Detects long-lived worker risks in Laravel apps.
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/gayansanjeewa/octane-doctor.svg?style=flat-square)](https://packagist.org/packages/gayansanjeewa/octane-doctor)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/gayansanjeewa/octane-doctor/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/gayansanjeewa/octane-doctor/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/gayansanjeewa/octane-doctor/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/gayansanjeewa/octane-doctor/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/gayansanjeewa/octane-doctor.svg?style=flat-square)](https://packagist.org/packages/gayansanjeewa/octane-doctor)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/geekset/octane-doctor.svg?style=flat-square)](https://packagist.org/packages/geekset/octane-doctor)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/geekset/octane-doctor/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/geekset/octane-doctor/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/geekset/octane-doctor/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/geekset/octane-doctor/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/geekset/octane-doctor.svg?style=flat-square)](https://packagist.org/packages/geekset/octane-doctor)
 <!--delete-->
 ---
 This repo can be used to scaffold a Laravel package. Follow these steps to get started:
@@ -29,7 +29,7 @@ We highly appreciate you sending us a postcard from your hometown, mentioning wh
 You can install the package via composer:
 
 ```bash
-composer require gayansanjeewa/octane-doctor
+composer require geekset/octane-doctor
 ```
 
 You can publish and run the migrations with:
@@ -61,8 +61,8 @@ php artisan vendor:publish --tag="octane-doctor-views"
 ## Usage
 
 ```php
-$:octaneDoctor = new Gayansanjeewa\OctaneDoctor();
-echo $:octaneDoctor->echoPhrase('Hello, Gayansanjeewa!');
+$:octaneDoctor = new Geekset\OctaneDoctor();
+echo $:octaneDoctor->echoPhrase('Hello, Geekset!');
 ```
 
 ## Testing
@@ -85,7 +85,7 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [Gayan Sanjeewa](https://github.com/gayansanjeewa)
+- [Gayan Sanjeewa](https://github.com/geekset)
 - [All Contributors](../../contributors)
 
 ## License

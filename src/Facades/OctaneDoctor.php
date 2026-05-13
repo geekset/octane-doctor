@@ -1,16 +1,16 @@
 <?php
 
-namespace Gayansanjeewa\OctaneDoctor\Facades;
+namespace Geekset\OctaneDoctor\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Gayansanjeewa\OctaneDoctor\OctaneDoctor
+ * @see \Geekset\OctaneDoctor\OctaneDoctor
  */
 class OctaneDoctor extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \Gayansanjeewa\OctaneDoctor\OctaneDoctor::class;
+        return \Geekset\OctaneDoctor\OctaneDoctor::class;
     }
 }
