@@ -1,0 +1,54 @@
+<?php
+
+namespace Geekset\OctaneDoctor\Scanning;
+
+use Geekset\OctaneDoctor\Enums\Severity;
+use Geekset\OctaneDoctor\Finding;
+
+final readonly class ScanResult
+{
+    /**
+     * @param  array<int, Finding>  $findings
+     * @param  array<int, string>  $scannedPaths
+     */
+    public function __construct(
+        public array $findings,
+        public array $scannedPaths,
+        public float $durationMs,
+    ) {}
+
+    public function count(): int
+    {
+        return count($this->findings);
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function countBySeverity(): array
+    {
+        $counts = [
+            Severity::High->value => 0,
+            Severity::Medium->value => 0,
+            Severity::Low->value => 0,
+            Severity::Info->value => 0,
+        ];
+
+        foreach ($this->findings as $finding) {
+            $counts[$finding->severity->value]++;
+        }
+
+        return $counts;
+    }
+
+    public function hasFindingAtOrAbove(Severity $threshold): bool
+    {
+        foreach ($this->findings as $finding) {
+            if ($finding->severity->isAtLeast($threshold)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
