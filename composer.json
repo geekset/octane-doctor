@@ -63,10 +63,7 @@
         "laravel": {
             "providers": [
                 "Geekset\\OctaneDoctor\\OctaneDoctorServiceProvider"
-            ],
-            "aliases": {
-                "OctaneDoctor": "Geekset\\OctaneDoctor\\Facades\\OctaneDoctor"
-            }
+            ]
         }
     },
     "minimum-stability": "dev",
