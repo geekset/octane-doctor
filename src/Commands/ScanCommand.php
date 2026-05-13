@@ -19,7 +19,8 @@ use Illuminate\Contracts\Foundation\Application;
 class ScanCommand extends Command
 {
     public $signature = 'octane-doctor:scan
-        {--fail-on= : Lowest severity that should fail the run (high, medium, low, info)}';
+        {--fail-on= : Lowest severity that should fail the run (high, medium, low, info)}
+        {--format= : Output format (table, json)}';
 
     public $description = 'Scan the application for Laravel Octane readiness risks.';
 
@@ -33,9 +34,19 @@ class ScanCommand extends Command
 
         $result = $scanner->scan($context);
 
-        $this->renderResult($result);
+        match ($this->resolveFormat()) {
+            'json' => $this->renderJson($result),
+            default => $this->renderTable($result),
+        };
 
         return $this->exitCode($result);
+    }
+
+    protected function resolveFormat(): string
+    {
+        $configured = $this->option('format') ?? config('octane-doctor.output', 'table');
+
+        return in_array($configured, ['table', 'json'], true) ? $configured : 'table';
     }
 
     /**
@@ -53,7 +64,7 @@ class ScanCommand extends Command
         return array_values(array_filter($configured, fn ($path) => is_string($path) && is_dir($path)));
     }
 
-    protected function renderResult(ScanResult $result): void
+    protected function renderTable(ScanResult $result): void
     {
         if ($result->count() === 0) {
             $this->info('No Octane readiness findings detected.');
@@ -86,6 +97,23 @@ class ScanCommand extends Command
             $counts[Severity::Info->value],
             $result->durationMs,
         ));
+    }
+
+    protected function renderJson(ScanResult $result): void
+    {
+        $payload = [
+            'schema_version' => '1',
+            'summary' => [
+                'total' => $result->count(),
+                'by_severity' => $result->countBySeverity(),
+                'by_category' => $result->countByCategory(),
+                'scanned_paths' => $result->scannedPaths,
+                'duration_ms' => round($result->durationMs, 3),
+            ],
+            'findings' => array_map(fn ($finding) => $finding->toArray(), $result->findings),
+        ];
+
+        $this->line(json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 
     protected function exitCode(ScanResult $result): int

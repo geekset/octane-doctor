@@ -41,6 +41,20 @@ final readonly class ScanResult
         return $counts;
     }
 
+    /**
+     * @return array<string, int>
+     */
+    public function countByCategory(): array
+    {
+        $counts = [];
+
+        foreach ($this->findings as $finding) {
+            $counts[$finding->category->value] = ($counts[$finding->category->value] ?? 0) + 1;
+        }
+
+        return $counts;
+    }
+
     public function hasFindingAtOrAbove(Severity $threshold): bool
     {
         foreach ($this->findings as $finding) {
