@@ -1,6 +1,7 @@
 <?php
 
 use Geekset\OctaneDoctor\Rules\Builtin\MutableStaticState;
+use Geekset\OctaneDoctor\Rules\Builtin\RequestContextAsProperty;
 use Geekset\OctaneDoctor\Rules\Builtin\RiskyHelpersInConstructor;
 
 return [
@@ -35,6 +36,7 @@ return [
     'rules' => [
         MutableStaticState::class,
         RiskyHelpersInConstructor::class,
+        RequestContextAsProperty::class,
     ],
 
     /*
