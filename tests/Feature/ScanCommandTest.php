@@ -4,6 +4,7 @@ use Geekset\OctaneDoctor\Enums\Category;
 use Geekset\OctaneDoctor\Enums\Severity;
 use Geekset\OctaneDoctor\Finding;
 use Geekset\OctaneDoctor\Rules\Rule;
+use Geekset\OctaneDoctor\Rules\RuleExplanation;
 use Geekset\OctaneDoctor\Scanning\ScanContext;
 use Illuminate\Support\Facades\Artisan;
 
@@ -29,6 +30,11 @@ class CommandFixtureRule implements Rule
     public function category(): Category
     {
         return Category::StaticState;
+    }
+
+    public function explanation(): RuleExplanation
+    {
+        return new RuleExplanation(whyItMatters: 'fixture', remediation: 'fixture');
     }
 
     public function run(ScanContext $context): iterable
@@ -67,6 +73,11 @@ class EmptyFixtureRule implements Rule
     public function category(): Category
     {
         return Category::UnknownRisk;
+    }
+
+    public function explanation(): RuleExplanation
+    {
+        return new RuleExplanation(whyItMatters: 'fixture', remediation: 'fixture');
     }
 
     public function run(ScanContext $context): iterable

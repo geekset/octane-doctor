@@ -8,6 +8,7 @@ use Geekset\OctaneDoctor\Enums\Category;
 use Geekset\OctaneDoctor\Enums\Severity;
 use Geekset\OctaneDoctor\Finding;
 use Geekset\OctaneDoctor\Rules\Rule;
+use Geekset\OctaneDoctor\Rules\RuleExplanation;
 use Geekset\OctaneDoctor\Scanning\ScanContext;
 use PhpParser\Node;
 use PhpParser\Node\Expr\FuncCall;
@@ -116,6 +117,18 @@ class RiskyHelpersInConstructor implements Rule
     public function category(): Category
     {
         return Category::RequestState;
+    }
+
+    public function explanation(): RuleExplanation
+    {
+        return new RuleExplanation(
+            whyItMatters: 'A constructor runs when the container resolves the service, not on every request. Values pulled from request(), auth(), or session() at construction time are captured at that moment and become stale for every subsequent request the same Octane worker handles.',
+            remediation: 'Move the call to a method that runs per request, accept the request scoped value as a method parameter, or resolve it through a scoped() container binding.',
+            examples: [
+                'public function __construct() { $this->user = auth()->user(); } // flagged on a singleton',
+                'public function handle(Request $request) { /* read here */ } // safe',
+            ],
+        );
     }
 
     public function run(ScanContext $context): iterable

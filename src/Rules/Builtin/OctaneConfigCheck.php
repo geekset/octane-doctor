@@ -6,6 +6,7 @@ use Geekset\OctaneDoctor\Enums\Category;
 use Geekset\OctaneDoctor\Enums\Severity;
 use Geekset\OctaneDoctor\Finding;
 use Geekset\OctaneDoctor\Rules\Rule;
+use Geekset\OctaneDoctor\Rules\RuleExplanation;
 use Geekset\OctaneDoctor\Scanning\ScanContext;
 use Illuminate\Contracts\Foundation\Application;
 
@@ -63,6 +64,18 @@ class OctaneConfigCheck implements Rule
     public function category(): Category
     {
         return Category::Configuration;
+    }
+
+    public function explanation(): RuleExplanation
+    {
+        return new RuleExplanation(
+            whyItMatters: 'Three layered signals about the Octane setup itself: not installed at all (informational), installed without a published config (defaults can shift between Octane versions), and a custom octane.flush array that drops baseline state bearing services (worker keeps the first request\'s instance of auth, cache, db, etc.).',
+            remediation: 'Install laravel/octane when you intend to run on Octane, publish the config so settings are explicit, and keep the baseline services (auth.driver, cache, cookie, db, db.factory, db.transactions, hash, translator, view) in octane.flush.',
+            examples: [
+                'composer require laravel/octane',
+                'php artisan vendor:publish --provider="Laravel\\Octane\\OctaneServiceProvider" --tag=octane-config',
+            ],
+        );
     }
 
     public function run(ScanContext $context): iterable
