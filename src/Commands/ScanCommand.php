@@ -2,7 +2,10 @@
 
 namespace Geekset\OctaneDoctor\Commands;
 
+use Geekset\OctaneDoctor\Baseline\Baseline;
+use Geekset\OctaneDoctor\Baseline\BaselineRepository;
 use Geekset\OctaneDoctor\Enums\Severity;
+use Geekset\OctaneDoctor\Finding;
 use Geekset\OctaneDoctor\Scanning\RuleRegistry;
 use Geekset\OctaneDoctor\Scanning\ScanContext;
 use Geekset\OctaneDoctor\Scanning\Scanner;
@@ -20,11 +23,12 @@ class ScanCommand extends Command
 {
     public $signature = 'octane-doctor:scan
         {--fail-on= : Lowest severity that should fail the run (high, medium, low, info)}
-        {--format= : Output format (table, json)}';
+        {--format= : Output format (table, json)}
+        {--no-baseline : Ignore the baseline file even if it is configured}';
 
     public $description = 'Scan the application for Laravel Octane readiness risks.';
 
-    public function handle(Application $app, RuleRegistry $registry): int
+    public function handle(Application $app, RuleRegistry $registry, BaselineRepository $repository): int
     {
         $paths = $this->resolvePaths();
 
@@ -32,14 +36,20 @@ class ScanCommand extends Command
 
         $scanner = new Scanner($registry->all());
 
-        $result = $scanner->scan($context);
+        $rawResult = $scanner->scan($context);
+
+        $baseline = $this->loadBaseline($repository);
+
+        $filtered = $this->filterByBaseline($rawResult, $baseline);
+
+        $baselinedCount = $rawResult->count() - $filtered->count();
 
         match ($this->resolveFormat()) {
-            'json' => $this->renderJson($result),
-            default => $this->renderTable($result),
+            'json' => $this->renderJson($filtered, $baselinedCount),
+            default => $this->renderTable($filtered, $baselinedCount),
         };
 
-        return $this->exitCode($result);
+        return $this->exitCode($filtered);
     }
 
     protected function resolveFormat(): string
@@ -64,10 +74,43 @@ class ScanCommand extends Command
         return array_values(array_filter($configured, fn ($path) => is_string($path) && is_dir($path)));
     }
 
-    protected function renderTable(ScanResult $result): void
+    protected function loadBaseline(BaselineRepository $repository): Baseline
+    {
+        if ($this->option('no-baseline')) {
+            return Baseline::empty();
+        }
+
+        $path = config('octane-doctor.baseline');
+
+        if (! is_string($path) || $path === '' || ! is_file($path)) {
+            return Baseline::empty();
+        }
+
+        return $repository->load($path);
+    }
+
+    protected function filterByBaseline(ScanResult $result, Baseline $baseline): ScanResult
+    {
+        if ($baseline->count() === 0) {
+            return $result;
+        }
+
+        $remaining = array_values(array_filter(
+            $result->findings,
+            fn (Finding $finding) => ! $baseline->contains($finding),
+        ));
+
+        return new ScanResult($remaining, $result->scannedPaths, $result->durationMs);
+    }
+
+    protected function renderTable(ScanResult $result, int $baselinedCount): void
     {
         if ($result->count() === 0) {
             $this->info('No Octane readiness findings detected.');
+
+            if ($baselinedCount > 0) {
+                $this->line("  ({$baselinedCount} finding".($baselinedCount === 1 ? '' : 's').' suppressed by baseline)');
+            }
 
             return;
         }
@@ -97,9 +140,13 @@ class ScanCommand extends Command
             $counts[Severity::Info->value],
             $result->durationMs,
         ));
+
+        if ($baselinedCount > 0) {
+            $this->line("Baseline: {$baselinedCount} finding".($baselinedCount === 1 ? '' : 's').' suppressed.');
+        }
     }
 
-    protected function renderJson(ScanResult $result): void
+    protected function renderJson(ScanResult $result, int $baselinedCount): void
     {
         $payload = [
             'schema_version' => '1',
@@ -109,6 +156,7 @@ class ScanCommand extends Command
                 'by_category' => $result->countByCategory(),
                 'scanned_paths' => $result->scannedPaths,
                 'duration_ms' => round($result->durationMs, 3),
+                'baselined' => $baselinedCount,
             ],
             'findings' => array_map(fn ($finding) => $finding->toArray(), $result->findings),
         ];
