@@ -6,6 +6,7 @@ use Geekset\OctaneDoctor\Rules\Builtin\OctaneConfigCheck;
 use Geekset\OctaneDoctor\Rules\Builtin\RequestContextAsProperty;
 use Geekset\OctaneDoctor\Rules\Builtin\RequestInSingleton;
 use Geekset\OctaneDoctor\Rules\Builtin\RiskyHelpersInConstructor;
+use Geekset\OctaneDoctor\Rules\Builtin\SuspiciousSingletonName;
 
 return [
 
@@ -42,6 +43,7 @@ return [
         RequestContextAsProperty::class,
         ContainerAsProperty::class,
         RequestInSingleton::class,
+        SuspiciousSingletonName::class,
         OctaneConfigCheck::class,
     ],
 
