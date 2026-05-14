@@ -116,6 +116,22 @@ Pass `--no-baseline` to ignore the baseline for an audit run:
 php artisan octane-doctor:scan --no-baseline
 ```
 
+## Explaining a rule
+
+Each finding is short on purpose. When you want the full picture for a rule, ask for it by id:
+
+```bash
+php artisan octane-doctor:explain request-in-singleton
+```
+
+Output covers the title, severity, category, why it matters, remediation, and concrete examples that show a flagged form versus a safe form of the pattern.
+
+Run the command without an argument to see every registered rule (built in plus custom):
+
+```bash
+php artisan octane-doctor:explain
+```
+
 ## Configuration
 
 `config/octane-doctor.php`:
@@ -167,6 +183,7 @@ use Geekset\OctaneDoctor\Enums\Category;
 use Geekset\OctaneDoctor\Enums\Severity;
 use Geekset\OctaneDoctor\Finding;
 use Geekset\OctaneDoctor\Rules\Rule;
+use Geekset\OctaneDoctor\Rules\RuleExplanation;
 use Geekset\OctaneDoctor\Scanning\ScanContext;
 
 class ForbidTenantContext implements Rule
@@ -189,6 +206,18 @@ class ForbidTenantContext implements Rule
     public function category(): Category
     {
         return Category::SingletonSafety;
+    }
+
+    public function explanation(): RuleExplanation
+    {
+        return new RuleExplanation(
+            whyItMatters: 'TenantContext holds the current tenant for one request only.',
+            remediation: 'Bind it with scoped() so each request gets its own instance.',
+            examples: [
+                '$this->app->singleton(TenantContext::class); // flagged',
+                '$this->app->scoped(TenantContext::class);    // safe',
+            ],
+        );
     }
 
     public function run(ScanContext $context): iterable
