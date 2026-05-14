@@ -10,6 +10,7 @@ use Geekset\OctaneDoctor\Scanning\RuleRegistry;
 use Geekset\OctaneDoctor\Scanning\ScanContext;
 use Geekset\OctaneDoctor\Scanning\Scanner;
 use Geekset\OctaneDoctor\Scanning\ScanResult;
+use Geekset\OctaneDoctor\Suppression\IgnoreList;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Foundation\Application;
 
@@ -38,15 +39,17 @@ class ScanCommand extends Command
 
         $rawResult = $scanner->scan($context);
 
+        $ignoreList = $this->loadIgnoreList();
+        $afterIgnore = $this->filterByIgnore($rawResult, $ignoreList);
+        $ignoredCount = $rawResult->count() - $afterIgnore->count();
+
         $baseline = $this->loadBaseline($repository);
-
-        $filtered = $this->filterByBaseline($rawResult, $baseline);
-
-        $baselinedCount = $rawResult->count() - $filtered->count();
+        $filtered = $this->filterByBaseline($afterIgnore, $baseline);
+        $baselinedCount = $afterIgnore->count() - $filtered->count();
 
         match ($this->resolveFormat()) {
-            'json' => $this->renderJson($filtered, $baselinedCount),
-            default => $this->renderTable($filtered, $baselinedCount),
+            'json' => $this->renderJson($filtered, $baselinedCount, $ignoredCount),
+            default => $this->renderTable($filtered, $baselinedCount, $ignoredCount),
         };
 
         return $this->exitCode($filtered);
@@ -89,6 +92,13 @@ class ScanCommand extends Command
         return $repository->load($path);
     }
 
+    protected function loadIgnoreList(): IgnoreList
+    {
+        $configured = config('octane-doctor.ignore', []);
+
+        return IgnoreList::fromConfig(is_array($configured) ? $configured : []);
+    }
+
     protected function filterByBaseline(ScanResult $result, Baseline $baseline): ScanResult
     {
         if ($baseline->count() === 0) {
@@ -103,14 +113,26 @@ class ScanCommand extends Command
         return new ScanResult($remaining, $result->scannedPaths, $result->durationMs);
     }
 
-    protected function renderTable(ScanResult $result, int $baselinedCount): void
+    protected function filterByIgnore(ScanResult $result, IgnoreList $ignoreList): ScanResult
+    {
+        if ($ignoreList->count() === 0) {
+            return $result;
+        }
+
+        $remaining = array_values(array_filter(
+            $result->findings,
+            fn (Finding $finding) => ! $ignoreList->contains($finding),
+        ));
+
+        return new ScanResult($remaining, $result->scannedPaths, $result->durationMs);
+    }
+
+    protected function renderTable(ScanResult $result, int $baselinedCount, int $ignoredCount): void
     {
         if ($result->count() === 0) {
             $this->info('No Octane readiness findings detected.');
 
-            if ($baselinedCount > 0) {
-                $this->line("  ({$baselinedCount} finding".($baselinedCount === 1 ? '' : 's').' suppressed by baseline)');
-            }
+            $this->renderSuppressionSummary($baselinedCount, $ignoredCount);
 
             return;
         }
@@ -141,12 +163,21 @@ class ScanCommand extends Command
             $result->durationMs,
         ));
 
+        $this->renderSuppressionSummary($baselinedCount, $ignoredCount);
+    }
+
+    protected function renderSuppressionSummary(int $baselinedCount, int $ignoredCount): void
+    {
         if ($baselinedCount > 0) {
             $this->line("Baseline: {$baselinedCount} finding".($baselinedCount === 1 ? '' : 's').' suppressed.');
         }
+
+        if ($ignoredCount > 0) {
+            $this->line("Ignore: {$ignoredCount} finding".($ignoredCount === 1 ? '' : 's').' suppressed.');
+        }
     }
 
-    protected function renderJson(ScanResult $result, int $baselinedCount): void
+    protected function renderJson(ScanResult $result, int $baselinedCount, int $ignoredCount): void
     {
         $payload = [
             'schema_version' => '1',
@@ -157,6 +188,7 @@ class ScanCommand extends Command
                 'scanned_paths' => $result->scannedPaths,
                 'duration_ms' => round($result->durationMs, 3),
                 'baselined' => $baselinedCount,
+                'ignored' => $ignoredCount,
             ],
             'findings' => array_map(fn ($finding) => $finding->toArray(), $result->findings),
         ];
