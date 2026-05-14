@@ -55,14 +55,16 @@ return [
     ],
 
     /*
-     * Finding fingerprints or rule IDs to suppress. Suppression keeps
-     * the finding out of the report without disabling the rule itself.
+     * Finding fingerprints or rule ids to suppress. Each entry is
+     * matched against both the finding fingerprint and its rule id.
+     * Use a rule id ("mutable-static-state") to turn an entire rule
+     * off, or a fingerprint to suppress one specific finding.
      */
     'ignore' => [
     ],
 
     /*
-     * Baseline file path. Used by the (forthcoming) baseline command
+     * Baseline file path. Used by the octane-doctor:baseline command
      * to record currently accepted findings so future runs only fail
      * on new ones.
      */

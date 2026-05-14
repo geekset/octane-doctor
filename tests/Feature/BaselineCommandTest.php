@@ -143,7 +143,7 @@ it('treats baselined findings as suppressed on the next scan', function () {
 
     expect($exit)->toBe(0)
         ->and($output)->toContain('No Octane readiness findings detected.')
-        ->and($output)->toContain('1 finding suppressed by baseline');
+        ->and($output)->toContain('Baseline: 1 finding suppressed.');
 });
 
 it('still fails on new findings introduced after the baseline was taken', function () {

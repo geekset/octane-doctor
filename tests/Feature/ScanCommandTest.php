@@ -173,3 +173,62 @@ it('falls back to table output when --format is invalid', function () {
         ->expectsOutputToContain('No Octane readiness findings detected.')
         ->assertExitCode(0);
 });
+
+it('suppresses findings whose rule id is listed in octane-doctor.ignore', function () {
+    CommandFixtureRule::$severity = Severity::High;
+    config()->set('octane-doctor.rules', [CommandFixtureRule::class]);
+    config()->set('octane-doctor.paths', []);
+    config()->set('octane-doctor.fail_on', 'high');
+    config()->set('octane-doctor.ignore', ['fixture-rule']);
+
+    $exit = Artisan::call('octane-doctor:scan');
+    $output = Artisan::output();
+
+    expect($exit)->toBe(0)
+        ->and($output)
+        ->toContain('No Octane readiness findings detected.')
+        ->toContain('Ignore: 1 finding suppressed.');
+});
+
+it('suppresses findings whose fingerprint is listed in octane-doctor.ignore', function () {
+    CommandFixtureRule::$severity = Severity::High;
+    config()->set('octane-doctor.rules', [CommandFixtureRule::class]);
+    config()->set('octane-doctor.paths', []);
+    config()->set('octane-doctor.fail_on', 'high');
+
+    $fingerprint = (new Finding(
+        ruleId: 'fixture-rule',
+        title: 'Fixture finding',
+        severity: Severity::High,
+        category: Category::StaticState,
+        summary: 'Detected a fixture risk.',
+        whyItMatters: 'It explains the danger.',
+        remediation: 'It explains the fix.',
+        filePath: '/app/Foo.php',
+        line: 42,
+    ))->fingerprint();
+
+    config()->set('octane-doctor.ignore', [$fingerprint]);
+
+    $exit = Artisan::call('octane-doctor:scan');
+    $output = Artisan::output();
+
+    expect($exit)->toBe(0)
+        ->and($output)->toContain('Ignore: 1 finding suppressed.');
+});
+
+it('reports baseline and ignore counts separately in JSON output', function () {
+    CommandFixtureRule::$severity = Severity::High;
+    config()->set('octane-doctor.rules', [CommandFixtureRule::class]);
+    config()->set('octane-doctor.paths', []);
+    config()->set('octane-doctor.fail_on', 'never');
+    config()->set('octane-doctor.ignore', ['fixture-rule']);
+
+    Artisan::call('octane-doctor:scan', ['--format' => 'json']);
+    $payload = json_decode(trim(Artisan::output()), true);
+
+    expect($payload['summary'])
+        ->toHaveKey('baselined', 0)
+        ->toHaveKey('ignored', 1)
+        ->and($payload['findings'])->toBe([]);
+});

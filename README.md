@@ -151,13 +151,29 @@ return [
         // Add your own rule classes here.
     ],
     'ignore' => [
-        // Reserved for future fingerprint level suppression.
+        // Finding fingerprints or rule ids to suppress.
     ],
     'baseline' => storage_path('app/octane-doctor-baseline.json'),
 ];
 ```
 
 To disable a built in rule, copy the default `rules` list and remove the entry you do not want.
+
+### Suppressing findings
+
+Use `octane-doctor.ignore` for permanent suppressions that should never be reported again. Each entry is matched against both the rule id and the finding fingerprint:
+
+```php
+'ignore' => [
+    // Turn off an entire rule for this project.
+    'suspicious-singleton-name',
+
+    // Suppress one specific finding by its fingerprint (copy it from the JSON output).
+    'a1b2c3d4e5f60789',
+],
+```
+
+The baseline workflow above is the right choice when you want to acknowledge today's findings and surface new ones. The ignore list is the right choice when you have already decided a pattern is acceptable for your codebase.
 
 ## Built in rules
 
