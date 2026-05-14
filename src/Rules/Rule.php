@@ -17,6 +17,8 @@ interface Rule
 
     public function category(): Category;
 
+    public function explanation(): RuleExplanation;
+
     /**
      * @return iterable<Finding>
      */

@@ -8,6 +8,7 @@ use Geekset\OctaneDoctor\Enums\Category;
 use Geekset\OctaneDoctor\Enums\Severity;
 use Geekset\OctaneDoctor\Finding;
 use Geekset\OctaneDoctor\Rules\Rule;
+use Geekset\OctaneDoctor\Rules\RuleExplanation;
 use Geekset\OctaneDoctor\Scanning\ScanContext;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
@@ -69,6 +70,18 @@ class MutableStaticState implements Rule
     public function category(): Category
     {
         return Category::StaticState;
+    }
+
+    public function explanation(): RuleExplanation
+    {
+        return new RuleExplanation(
+            whyItMatters: 'Static class properties persist for the lifetime of the Octane worker. Anything written to one of them during a request stays visible to every later request handled by the same worker, which produces silent cross-request data leaks and authorisation bugs.',
+            remediation: 'Move the state onto an instance, behind a scoped() container binding, or into a per-request cache. If the value is constant, use a class constant instead.',
+            examples: [
+                'class UserCache { protected static array $cache = []; } // flagged',
+                'class UserCache { public const TTL = 60; } // safe (constant)',
+            ],
+        );
     }
 
     public function run(ScanContext $context): iterable

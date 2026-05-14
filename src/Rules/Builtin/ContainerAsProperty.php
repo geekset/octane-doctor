@@ -8,6 +8,7 @@ use Geekset\OctaneDoctor\Enums\Category;
 use Geekset\OctaneDoctor\Enums\Severity;
 use Geekset\OctaneDoctor\Finding;
 use Geekset\OctaneDoctor\Rules\Rule;
+use Geekset\OctaneDoctor\Rules\RuleExplanation;
 use Geekset\OctaneDoctor\Scanning\ScanContext;
 use PhpParser\Node;
 use PhpParser\Node\ComplexType;
@@ -102,6 +103,18 @@ class ContainerAsProperty implements Rule
     public function category(): Category
     {
         return Category::ContainerLifecycle;
+    }
+
+    public function explanation(): RuleExplanation
+    {
+        return new RuleExplanation(
+            whyItMatters: 'Under Octane the same service instance is reused across requests, and keeping the container or Application as a property usually leads to caching resolved dependencies on the same instance. Anything resolved that way captures the request that triggered the resolution and stays stale for every later request.',
+            remediation: 'Receive the specific dependency you actually need through constructor injection or a method parameter. If you genuinely need late binding resolution, call app() or App::make() at the moment of use rather than once at construction time.',
+            examples: [
+                'class Foo { public function __construct(protected Container $container) {} } // flagged',
+                'class Foo { public function __construct(protected Cache $cache) {} } // safe',
+            ],
+        );
     }
 
     public function run(ScanContext $context): iterable

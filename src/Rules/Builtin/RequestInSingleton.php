@@ -6,6 +6,7 @@ use Geekset\OctaneDoctor\Enums\Category;
 use Geekset\OctaneDoctor\Enums\Severity;
 use Geekset\OctaneDoctor\Finding;
 use Geekset\OctaneDoctor\Rules\Rule;
+use Geekset\OctaneDoctor\Rules\RuleExplanation;
 use Geekset\OctaneDoctor\Scanning\ScanContext;
 use Illuminate\Contracts\Container\Container;
 use ReflectionClass;
@@ -79,6 +80,18 @@ class RequestInSingleton implements Rule
     public function category(): Category
     {
         return Category::SingletonSafety;
+    }
+
+    public function explanation(): RuleExplanation
+    {
+        return new RuleExplanation(
+            whyItMatters: 'A singleton is built once per worker and reused across requests under Octane. A constructor that accepts the current Request, auth Guard, Route, or Session freezes that instance to the request that triggered the first resolution. Every later request the worker handles sees the same stale dependency.',
+            remediation: 'Either move the binding to scoped() so it is rebuilt per request, or stop injecting the request scoped dependency through the constructor and resolve it inside the method that uses it.',
+            examples: [
+                '$this->app->singleton(Foo::class) // Foo::__construct(Request $r) flagged',
+                '$this->app->scoped(Foo::class) // safe under Octane',
+            ],
+        );
     }
 
     public function run(ScanContext $context): iterable
