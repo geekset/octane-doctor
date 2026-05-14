@@ -2,6 +2,7 @@
 
 use Geekset\OctaneDoctor\Rules\Builtin\ContainerAsProperty;
 use Geekset\OctaneDoctor\Rules\Builtin\MutableStaticState;
+use Geekset\OctaneDoctor\Rules\Builtin\OctaneConfigCheck;
 use Geekset\OctaneDoctor\Rules\Builtin\RequestContextAsProperty;
 use Geekset\OctaneDoctor\Rules\Builtin\RequestInSingleton;
 use Geekset\OctaneDoctor\Rules\Builtin\RiskyHelpersInConstructor;
@@ -41,6 +42,7 @@ return [
         RequestContextAsProperty::class,
         ContainerAsProperty::class,
         RequestInSingleton::class,
+        OctaneConfigCheck::class,
     ],
 
     /*
