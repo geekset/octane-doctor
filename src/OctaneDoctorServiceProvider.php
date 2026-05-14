@@ -3,6 +3,7 @@
 namespace Geekset\OctaneDoctor;
 
 use Geekset\OctaneDoctor\Commands\BaselineCommand;
+use Geekset\OctaneDoctor\Commands\ExplainCommand;
 use Geekset\OctaneDoctor\Commands\ScanCommand;
 use Geekset\OctaneDoctor\Scanning\RuleRegistry;
 use Illuminate\Contracts\Foundation\Application;
@@ -17,7 +18,8 @@ class OctaneDoctorServiceProvider extends PackageServiceProvider
             ->name('octane-doctor')
             ->hasConfigFile()
             ->hasCommand(ScanCommand::class)
-            ->hasCommand(BaselineCommand::class);
+            ->hasCommand(BaselineCommand::class)
+            ->hasCommand(ExplainCommand::class);
     }
 
     public function packageRegistered(): void

@@ -8,6 +8,7 @@ use Geekset\OctaneDoctor\Enums\Category;
 use Geekset\OctaneDoctor\Enums\Severity;
 use Geekset\OctaneDoctor\Finding;
 use Geekset\OctaneDoctor\Rules\Rule;
+use Geekset\OctaneDoctor\Rules\RuleExplanation;
 use Geekset\OctaneDoctor\Scanning\ScanContext;
 use PhpParser\Node;
 use PhpParser\Node\ComplexType;
@@ -105,6 +106,18 @@ class RequestContextAsProperty implements Rule
     public function category(): Category
     {
         return Category::RequestState;
+    }
+
+    public function explanation(): RuleExplanation
+    {
+        return new RuleExplanation(
+            whyItMatters: 'Under Octane the same object instance is reused across requests. A property holding the current Request, auth guard, route, or session freezes to the request that constructed the class and stays stale for every later request the worker handles.',
+            remediation: 'Receive the request scoped object as a method parameter, resolve it on demand through the container, or move the binding to scoped() so a fresh instance is built per request.',
+            examples: [
+                'class ReportService { protected Request $request; } // flagged',
+                'class ReportService { public function generate(Request $request) {} } // safe',
+            ],
+        );
     }
 
     public function run(ScanContext $context): iterable
