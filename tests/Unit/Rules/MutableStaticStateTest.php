@@ -93,3 +93,32 @@ it('still flags non-allow-listed static properties on resources that override $w
         ->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\UnsafeResourceWithExtraStatic::$cache')
         ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\UnsafeResourceWithExtraStatic::$wrap');
 });
+
+it('skips Filament configuration static properties on Filament Resources, Pages and Widgets', function () {
+    $findings = runMutableStaticStateRule($this->fixturesPath);
+
+    $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
+
+    expect($symbols)
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$navigationLabel')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$modelLabel')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$pluralModelLabel')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$navigationIcon')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$navigationSort')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$view')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$navigationIcon')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$title')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$relationship')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentWidget::$sort')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentWidget::$navigationIcon');
+});
+
+it('still flags non-Filament static properties on classes that extend Filament parents', function () {
+    $findings = runMutableStaticStateRule($this->fixturesPath);
+
+    $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
+
+    expect($symbols)
+        ->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\UnsafeFilamentResourceWithExtraStatic::$cache')
+        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\UnsafeFilamentResourceWithExtraStatic::$navigationLabel');
+});

@@ -48,6 +48,48 @@ class MutableStaticState implements Rule
         ],
     ];
 
+    /**
+     * Static property overrides that are safe whenever the immediate
+     * parent class sits inside the given namespace prefix. Filament
+     * Resources, Pages and Widgets expose dozens of static configuration
+     * hooks; user subclasses set them to constant values at class
+     * definition time, which behaves like a class constant under Octane.
+     * Without this safe list, a Filament heavy app produces dozens of
+     * false positives that drown out the real findings.
+     *
+     * @var array<string, array<int, string>>
+     */
+    protected const SAFE_PROPS_BY_PARENT_NAMESPACE_PREFIX = [
+        'Filament\\' => [
+            'view',
+            'resource',
+            'cluster',
+            'model',
+            'slug',
+            'recordTitleAttribute',
+            'label',
+            'pluralLabel',
+            'modelLabel',
+            'pluralModelLabel',
+            'navigationIcon',
+            'activeNavigationIcon',
+            'navigationLabel',
+            'navigationGroup',
+            'navigationSort',
+            'navigationBadgeTooltip',
+            'navigationParentItem',
+            'shouldRegisterNavigation',
+            'title',
+            'subheading',
+            'breadcrumb',
+            'sort',
+            'tenantOwnershipRelationshipName',
+            'isScopedToTenant',
+            'relationship',
+            'inverseRelationship',
+        ],
+    ];
+
     public function __construct(
         protected FileWalker $walker,
     ) {}
@@ -97,8 +139,9 @@ class MutableStaticState implements Rule
     protected function inspect(ParsedFile $parsed): iterable
     {
         $safeOverrides = self::SAFE_PARENT_OVERRIDES;
+        $safePrefixes = self::SAFE_PROPS_BY_PARENT_NAMESPACE_PREFIX;
 
-        $visitor = new class($safeOverrides) extends NodeVisitorAbstract
+        $visitor = new class($safeOverrides, $safePrefixes) extends NodeVisitorAbstract
         {
             /** @var array<int, array{className: string, propertyName: string, line: int}> */
             public array $hits = [];
@@ -109,9 +152,11 @@ class MutableStaticState implements Rule
 
             /**
              * @param  array<string, array<int, string>>  $safeOverrides
+             * @param  array<string, array<int, string>>  $safePrefixes
              */
             public function __construct(
                 protected array $safeOverrides,
+                protected array $safePrefixes,
             ) {}
 
             public function enterNode(Node $node): null
@@ -163,7 +208,18 @@ class MutableStaticState implements Rule
 
                 $safeProperties = $this->safeOverrides[$this->currentParent] ?? [];
 
-                return in_array($propertyName, $safeProperties, true);
+                if (in_array($propertyName, $safeProperties, true)) {
+                    return true;
+                }
+
+                foreach ($this->safePrefixes as $prefix => $properties) {
+                    if (str_starts_with($this->currentParent, $prefix)
+                        && in_array($propertyName, $properties, true)) {
+                        return true;
+                    }
+                }
+
+                return false;
             }
         };
 
