@@ -49,7 +49,6 @@ class RequestContextAsProperty implements Rule
      */
     protected const REQUEST_SCOPED_TYPES = [
         'Illuminate\\Http\\Request',
-        'Illuminate\\Http\\Concerns\\InteractsWithInput',
         'Illuminate\\Auth\\AuthManager',
         'Illuminate\\Contracts\\Auth\\Guard',
         'Illuminate\\Contracts\\Auth\\StatefulGuard',
