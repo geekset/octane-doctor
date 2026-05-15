@@ -18,3 +18,7 @@
 /UPGRADING.md       export-ignore
 /phpstan.neon.dist  export-ignore
 /phpstan-baseline.neon  export-ignore
+/pint.json          export-ignore
+/sandbox            export-ignore
+/CHANGELOG.md       export-ignore
+/octane_doctor_specification.md export-ignore
