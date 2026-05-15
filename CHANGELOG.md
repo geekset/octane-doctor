@@ -6,8 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased](https://github.com/geekset/octane-doctor/compare/v0.1.0...HEAD)
 
-## [v0.1.0](https://github.com/geekset/octane-doctor/compare/v0.1.0...v0.1.0) - 2026-05-15
-
 ## [0.1.0](https://github.com/geekset/octane-doctor/releases/tag/v0.1.0) - 2026-05-15
 
 First MVP release. Implements the scanner foundation, CLI surface, and seven high signal rules described in `octane_doctor_specification.md`.
