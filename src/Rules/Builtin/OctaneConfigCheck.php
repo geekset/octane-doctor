@@ -11,41 +11,32 @@ use Geekset\OctaneDoctor\Scanning\ScanContext;
 use Illuminate\Contracts\Foundation\Application;
 
 /**
- * Sanity checks on the host application's Octane setup. Three signals:
+ * Sanity checks on the host application's Octane setup. Two layered
+ * signals, deliberately conservative:
  *
  * - Octane is not installed at all. Emitted as Info so a readiness
- *   scan still surfaces it.
+ *   scan still surfaces it without producing a build failure.
  * - Octane is installed but the user has not published its config.
- *   Low severity. Means any tweak they want is hidden behind defaults
- *   that may change between Octane versions.
- * - Octane config is published but the flush array is missing
- *   commonly state-bearing services. Medium severity.
+ *   Low severity. The application is running on package defaults
+ *   that may change between Octane versions and that cannot be
+ *   reviewed in PRs.
  *
- * Deliberately conservative: each check is one finding maximum, and
- * the rule never inspects runtime env or guesses Octane server
- * choice. It exits early when the host clearly is not on Octane yet.
+ * The rule never inspects runtime env or guesses the Octane server,
+ * and it exits early after the first applicable signal so a single
+ * scan emits at most one octane-config-check finding.
+ *
+ * We deliberately do not flag missing entries in `octane.flush`.
+ * Laravel Octane resets the core framework state (auth state, the
+ * `request` binding, database connections, and so on) inside
+ * `Octane::prepareApplicationForNextOperation`, independently of the
+ * user `octane.flush` array. That config key is for the host
+ * application to flag *additional* singletons it owns and wants
+ * rebuilt per request, not a knob for the framework defaults. The
+ * other rules in this pack already catch the kind of singletons
+ * that belong there.
  */
 class OctaneConfigCheck implements Rule
 {
-    /**
-     * Services Octane's default flush array clears between requests.
-     * If a custom flush array drops one of these without replacement,
-     * scoped state from that service can leak across requests.
-     *
-     * @var array<int, string>
-     */
-    protected const BASELINE_FLUSH_SERVICES = [
-        'auth.driver',
-        'cache',
-        'cookie',
-        'db',
-        'db.factory',
-        'db.transactions',
-        'hash',
-        'translator',
-        'view',
-    ];
-
     public function id(): string
     {
         return 'octane-config-check';
@@ -58,7 +49,7 @@ class OctaneConfigCheck implements Rule
 
     public function severity(): Severity
     {
-        return Severity::Medium;
+        return Severity::Low;
     }
 
     public function category(): Category
@@ -69,8 +60,8 @@ class OctaneConfigCheck implements Rule
     public function explanation(): RuleExplanation
     {
         return new RuleExplanation(
-            whyItMatters: 'Three layered signals about the Octane setup itself: not installed at all (informational), installed without a published config (defaults can shift between Octane versions), and a custom octane.flush array that drops baseline state bearing services (worker keeps the first request\'s instance of auth, cache, db, etc.).',
-            remediation: 'Install laravel/octane when you intend to run on Octane, publish the config so settings are explicit, and keep the baseline services (auth.driver, cache, cookie, db, db.factory, db.transactions, hash, translator, view) in octane.flush.',
+            whyItMatters: 'Two layered signals about the Octane setup itself: not installed at all (informational), or installed without a published config (defaults can shift between Octane versions and the flush, warm, and listener lists cannot be reviewed in PRs).',
+            remediation: 'Install laravel/octane when you intend to run on Octane, then publish the config so settings are explicit and version controlled.',
             examples: [
                 'composer require laravel/octane',
                 'php artisan vendor:publish --provider="Laravel\\Octane\\OctaneServiceProvider" --tag=octane-config',
@@ -95,20 +86,6 @@ class OctaneConfigCheck implements Rule
 
             return;
         }
-
-        $flush = $this->resolveFlushList($app);
-
-        if ($flush === null) {
-            return;
-        }
-
-        $missing = array_values(array_diff(self::BASELINE_FLUSH_SERVICES, $flush));
-
-        if ($missing === []) {
-            return;
-        }
-
-        yield $this->incompleteFlushFinding($configPath, $missing);
     }
 
     protected function octaneInstalled(Application $app): bool
@@ -137,20 +114,6 @@ class OctaneConfigCheck implements Rule
         return isset($require['laravel/octane']) || isset($requireDev['laravel/octane']);
     }
 
-    /**
-     * @return array<int, string>|null
-     */
-    protected function resolveFlushList(Application $app): ?array
-    {
-        $flush = $app['config']->get('octane.flush');
-
-        if (! is_array($flush)) {
-            return null;
-        }
-
-        return array_values(array_filter($flush, fn ($entry) => is_string($entry)));
-    }
-
     protected function notInstalledFinding(): Finding
     {
         return new Finding(
@@ -174,25 +137,6 @@ class OctaneConfigCheck implements Rule
             summary: 'config/octane.php is missing.',
             whyItMatters: 'Octane is installed but the application is running entirely on the package defaults. Defaults can shift across Octane versions, and you cannot customise the flush, warm, or listener lists without publishing the config.',
             remediation: 'Run php artisan vendor:publish --provider="Laravel\\Octane\\OctaneServiceProvider" --tag=octane-config to publish the config file, then commit it so the application has explicit, reviewable Octane settings.',
-            filePath: $configPath,
-        );
-    }
-
-    /**
-     * @param  array<int, string>  $missing
-     */
-    protected function incompleteFlushFinding(string $configPath, array $missing): Finding
-    {
-        $missingList = implode(', ', $missing);
-
-        return new Finding(
-            ruleId: $this->id(),
-            title: 'Octane flush list is missing common services',
-            severity: $this->severity(),
-            category: $this->category(),
-            summary: "octane.flush does not include: {$missingList}.",
-            whyItMatters: 'Anything in octane.flush is rebuilt between requests, so leaving common state-bearing services out means a worker keeps the first request\'s instance of those services for the rest of its life. The most common consequence is cross-request auth state and stale database connections.',
-            remediation: "Add the missing services back to the flush array in config/octane.php (or remove your overrides so the package default applies). Missing entries: {$missingList}.",
             filePath: $configPath,
         );
     }

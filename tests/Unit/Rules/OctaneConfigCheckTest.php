@@ -56,44 +56,27 @@ it('emits a Low finding when Octane is installed but config is not published', f
         ->and($findings[0]->title)->toBe('Octane config has not been published');
 });
 
-it('emits a Medium finding when octane.flush is missing baseline services', function () {
+it('returns no findings when Octane is installed and config is published, regardless of flush contents', function () {
     file_put_contents($this->tempDir.'/composer.json', json_encode([
         'require' => ['laravel/octane' => '^2.0'],
     ]));
     file_put_contents($this->tempDir.'/config/octane.php', '<?php return [];');
 
-    config()->set('octane.flush', ['view']);
-
-    $findings = runOctaneConfigCheckRule();
-
-    expect($findings)->toHaveCount(1)
-        ->and($findings[0]->severity)->toBe(Severity::Medium)
-        ->and($findings[0]->title)->toBe('Octane flush list is missing common services')
-        ->and($findings[0]->summary)->toContain('auth.driver')
-        ->and($findings[0]->summary)->toContain('cache')
-        ->and($findings[0]->summary)->not->toContain('view');
-});
-
-it('returns no findings when Octane is installed and the flush list is complete', function () {
-    file_put_contents($this->tempDir.'/composer.json', json_encode([
-        'require' => ['laravel/octane' => '^2.0'],
-    ]));
-    file_put_contents($this->tempDir.'/config/octane.php', '<?php return [];');
-
-    config()->set('octane.flush', [
-        'auth.driver',
-        'cache',
-        'cookie',
-        'db',
-        'db.factory',
-        'db.transactions',
-        'hash',
-        'translator',
-        'view',
-        'redirect',
-    ]);
+    config()->set('octane.flush', []);
 
     $findings = runOctaneConfigCheckRule();
 
     expect($findings)->toBe([]);
+});
+
+it('detects laravel/octane when it lives in require-dev', function () {
+    file_put_contents($this->tempDir.'/composer.json', json_encode([
+        'require' => ['laravel/framework' => '^12.0'],
+        'require-dev' => ['laravel/octane' => '^2.0'],
+    ]));
+
+    $findings = runOctaneConfigCheckRule();
+
+    expect($findings)->toHaveCount(1)
+        ->and($findings[0]->title)->toBe('Octane config has not been published');
 });

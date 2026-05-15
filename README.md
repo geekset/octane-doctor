@@ -184,7 +184,7 @@ The baseline workflow above is the right choice when you want to acknowledge tod
 | `request-context-as-property` | high | request-state | Properties typed as Request, the auth guard, Route, or Session on long lived services. |
 | `container-as-property` | medium | container-lifecycle | The container or Application stored as an instance property. |
 | `request-in-singleton` | high | singleton-safety | Singleton bound services whose constructor accepts a request scoped framework object. |
-| `octane-config-check` | info / low / medium | configuration | Octane not installed, config not published, or `octane.flush` missing baseline services. |
+| `octane-config-check` | info / low | configuration | Octane not installed, or installed but `config/octane.php` not published. |
 
 Each rule contains a per dispatch and per request safe list so events, mailables, notifications, form requests, and controllers are not flagged for patterns that are documented Laravel idioms in those contexts.
 
