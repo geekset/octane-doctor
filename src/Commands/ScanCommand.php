@@ -13,6 +13,9 @@ use Geekset\OctaneDoctor\Scanning\ScanResult;
 use Geekset\OctaneDoctor\Suppression\IgnoreList;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Foundation\Application;
+use Termwind\Termwind;
+
+use function Termwind\render;
 
 /**
  * Entry point for `php artisan octane-doctor:scan`. Wires the
@@ -129,8 +132,15 @@ class ScanCommand extends Command
 
     protected function renderTable(ScanResult $result, int $baselinedCount, int $ignoredCount): void
     {
+        Termwind::renderUsing($this->output);
+
         if ($result->count() === 0) {
-            $this->info('No Octane readiness findings detected.');
+            render(<<<'HTML'
+                <div class="mx-2 my-1">
+                    <span class="px-1 bg-green-600 text-white font-bold">PASS</span>
+                    <span class="ml-1">No Octane readiness findings detected.</span>
+                </div>
+            HTML);
 
             $this->renderSuppressionSummary($baselinedCount, $ignoredCount);
 
@@ -138,43 +148,101 @@ class ScanCommand extends Command
         }
 
         foreach ($result->findings as $finding) {
-            $this->line('');
-            $this->line("[{$finding->severity->value}] {$finding->ruleId}: {$finding->title}");
-
-            if ($finding->filePath !== null) {
-                $location = $finding->filePath.($finding->line !== null ? ":{$finding->line}" : '');
-                $this->line("  at {$location}");
-            }
-
-            $this->line("  {$finding->summary}");
-            $this->line("  Why: {$finding->whyItMatters}");
-            $this->line("  Fix: {$finding->remediation}");
+            $this->renderFinding($finding);
         }
 
-        $this->line('');
-        $counts = $result->countBySeverity();
-        $this->line(sprintf(
-            'Total: %d (high: %d, medium: %d, low: %d, info: %d) in %.1f ms',
-            $result->count(),
-            $counts[Severity::High->value],
-            $counts[Severity::Medium->value],
-            $counts[Severity::Low->value],
-            $counts[Severity::Info->value],
-            $result->durationMs,
-        ));
+        $this->renderFooter($result);
 
         $this->renderSuppressionSummary($baselinedCount, $ignoredCount);
+    }
+
+    protected function renderFinding(Finding $finding): void
+    {
+        [$badgeBg, $badgeText] = match ($finding->severity) {
+            Severity::High => ['bg-red-600', 'text-white'],
+            Severity::Medium => ['bg-yellow-500', 'text-black'],
+            Severity::Low => ['bg-blue-500', 'text-white'],
+            Severity::Info => ['bg-gray-500', 'text-white'],
+        };
+
+        $severity = strtoupper($finding->severity->value);
+        $ruleId = $this->escape($finding->ruleId);
+        $title = $this->escape($finding->title);
+
+        render(<<<HTML
+            <div class="mx-2 mt-1">
+                <span class="px-1 {$badgeBg} {$badgeText} font-bold">{$severity}</span>
+                <span class="ml-1 font-bold">{$ruleId}</span>
+                <span class="ml-1 text-gray">{$title}</span>
+            </div>
+        HTML);
+
+        if ($finding->filePath !== null) {
+            $location = $finding->filePath.($finding->line !== null ? ":{$finding->line}" : '');
+            $location = $this->escape($location);
+
+            render(<<<HTML
+                <div class="mx-2 ml-4 text-gray">at {$location}</div>
+            HTML);
+        }
+
+        $summary = $this->escape($finding->summary);
+        $why = $this->escape($finding->whyItMatters);
+        $fix = $this->escape($finding->remediation);
+
+        render(<<<HTML
+            <div class="mx-2 ml-4">{$summary}</div>
+        HTML);
+
+        render(<<<HTML
+            <div class="mx-2 ml-4 text-gray"><span class="font-bold text-yellow">Why:</span> {$why}</div>
+        HTML);
+
+        render(<<<HTML
+            <div class="mx-2 ml-4 text-gray"><span class="font-bold text-green">Fix:</span> {$fix}</div>
+        HTML);
+    }
+
+    protected function renderFooter(ScanResult $result): void
+    {
+        $counts = $result->countBySeverity();
+        $duration = sprintf('%.1f', $result->durationMs);
+        $total = $result->count();
+        $high = $counts[Severity::High->value];
+        $medium = $counts[Severity::Medium->value];
+        $low = $counts[Severity::Low->value];
+        $info = $counts[Severity::Info->value];
+
+        render(<<<HTML
+            <div class="mx-2 mt-1">
+                <span class="font-bold">Total:</span>
+                <span class="ml-1">{$total}</span>
+                <span class="ml-1 text-gray">(high: {$high}, medium: {$medium}, low: {$low}, info: {$info})</span>
+                <span class="ml-1 text-gray">in {$duration} ms</span>
+            </div>
+        HTML);
     }
 
     protected function renderSuppressionSummary(int $baselinedCount, int $ignoredCount): void
     {
         if ($baselinedCount > 0) {
-            $this->line("Baseline: {$baselinedCount} finding".($baselinedCount === 1 ? '' : 's').' suppressed.');
+            $word = $baselinedCount === 1 ? 'finding' : 'findings';
+            render(<<<HTML
+                <div class="mx-2 text-gray">Baseline: {$baselinedCount} {$word} suppressed.</div>
+            HTML);
         }
 
         if ($ignoredCount > 0) {
-            $this->line("Ignore: {$ignoredCount} finding".($ignoredCount === 1 ? '' : 's').' suppressed.');
+            $word = $ignoredCount === 1 ? 'finding' : 'findings';
+            render(<<<HTML
+                <div class="mx-2 text-gray">Ignore: {$ignoredCount} {$word} suppressed.</div>
+            HTML);
         }
+    }
+
+    protected function escape(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     protected function renderJson(ScanResult $result, int $baselinedCount, int $ignoredCount): void
