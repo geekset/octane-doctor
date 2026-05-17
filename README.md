@@ -1,11 +1,21 @@
+<div align="center">
+
 # Octane Doctor
 
+**A Laravel Octane readiness scanner.**
+
+_Detect long-lived worker risks in Laravel apps before they bite production._
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/geekset/octane-doctor.svg?style=flat-square)](https://packagist.org/packages/geekset/octane-doctor)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/geekset/octane-doctor/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/geekset/octane-doctor/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/geekset/octane-doctor/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/geekset/octane-doctor/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![PHP Version](https://img.shields.io/packagist/dependency-v/geekset/octane-doctor/php?style=flat-square)](https://packagist.org/packages/geekset/octane-doctor)
+[![Tests](https://img.shields.io/github/actions/workflow/status/geekset/octane-doctor/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/geekset/octane-doctor/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![Code Style](https://img.shields.io/github/actions/workflow/status/geekset/octane-doctor/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/geekset/octane-doctor/actions?query=workflow%3A%22Fix+PHP+code+style+issues%22+branch%3Amain)
+[![License](https://img.shields.io/packagist/l/geekset/octane-doctor.svg?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/geekset/octane-doctor.svg?style=flat-square)](https://packagist.org/packages/geekset/octane-doctor)
 
-Octane Doctor is a Laravel Octane readiness scanner. It looks at an existing Laravel application, reports patterns that tend to break under long lived workers, and explains each finding in terms a developer can act on.
+</div>
+
+Octane Doctor looks at an existing Laravel application, reports patterns that tend to break under long lived workers, and explains each finding in terms a developer can act on.
 
 It is built for teams who already have a real codebase. The default rules are conservative on purpose. The package favours a small set of high signal checks over a wide net of guesses.
 
@@ -22,6 +32,57 @@ It is built for teams who already have a real codebase. The default rules are co
 * Replace load testing, profiling, or production validation.
 * Automatically fix issues. The MVP focuses on accurate findings and useful remediation text. Automated rewrites are deliberately out of scope.
 * Understand arbitrary domain logic. Custom rules cover patterns the built in rule set cannot know about.
+
+## Example output
+
+Two contrived classes:
+
+```php
+// app/Services/UserCache.php
+class UserCache
+{
+    protected static array $cache = [];
+}
+
+// app/Services/ReportService.php
+class ReportService
+{
+    public function __construct(protected Request $request) {}
+}
+```
+
+Run the scanner:
+
+```bash
+php artisan octane-doctor:scan
+```
+
+What the developer sees in the terminal:
+
+```text
+   HIGH  request-context-as-property Request-scoped object stored as a class property
+    at app/Services/ReportService.php:10
+    Class App\Services\ReportService stores Illuminate\Http\Request on property $request.
+    Why: Under Octane the same object instance is reused across requests. A property
+         holding the current Request, auth guard, route, or session freezes to the
+         request that constructed the class and stays stale for every later request.
+    Fix: Receive the request-scoped object as a method parameter, resolve it on
+         demand through the container, or move the binding to scoped() so a fresh
+         instance is built per request.
+
+   MEDIUM  mutable-static-state Mutable static state
+    at app/Services/UserCache.php:7
+    Class App\Services\UserCache declares mutable static property $cache.
+    Why: Static class properties persist across requests under Octane workers. Any
+         mutation written during one request stays visible to every subsequent
+         request handled by the same worker.
+    Fix: Move the state onto an instance, behind a scoped() container binding, or
+         into a per-request cache. If the value is constant, use a class constant.
+
+  Total: 2 (high: 1, medium: 1, low: 0, info: 0) in 10.0 ms
+```
+
+Severity badges (`HIGH` red, `MEDIUM` yellow, `LOW` blue, `INFO` grey) are coloured in the actual terminal output.
 
 ## Installation
 
@@ -277,6 +338,16 @@ composer analyse    # PHPStan level 5
 composer lint       # Pint
 ```
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full development workflow.
+
+## Security
+
+Report security issues privately. See [SECURITY.md](SECURITY.md) for the supported versions matrix and reporting instructions.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). All contributors must follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## License
 
-The MIT License (MIT). See the `LICENSE.md` file.
+The MIT License (MIT). See [LICENSE.md](LICENSE.md).
