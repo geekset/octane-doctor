@@ -4,7 +4,16 @@ All notable changes to `octane-doctor` will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/geekset/octane-doctor/compare/0.3.0...HEAD)
+## [Unreleased](https://github.com/geekset/octane-doctor/compare/0.4.0...HEAD)
+
+## [0.4.0](https://github.com/geekset/octane-doctor/compare/0.3.0...0.4.0) - 2026-05-17
+
+### What's Changed
+
+* Polish GitHub homepage: hero, example output, community files by @gayansanjeewa in https://github.com/geekset/octane-doctor/pull/24
+* Add markdown feature-request issue template by @gayansanjeewa in https://github.com/geekset/octane-doctor/pull/25
+
+**Full Changelog**: https://github.com/geekset/octane-doctor/compare/0.3.0...0.4.0
 
 ## [0.3.0](https://github.com/geekset/octane-doctor/compare/0.2.1...0.3.0) - 2026-05-16
 
