@@ -1,6 +1,6 @@
 <div align="center">
 
-# Octane Doctor
+<img src="art/logo-wordmark.png" alt="Octane Doctor" width="540">
 
 **A Laravel Octane readiness scanner.**
 
