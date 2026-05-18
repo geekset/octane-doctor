@@ -4,7 +4,28 @@ All notable changes to `octane-doctor` will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/octane-doctor/octane-doctor/compare/0.7.0...HEAD)
+## [Unreleased](https://github.com/octane-doctor/octane-doctor/compare/0.8.0...HEAD)
+
+## [0.8.0](https://github.com/octane-doctor/octane-doctor/compare/0.7.0...0.8.0) - 2026-05-18
+
+### Breaking change
+
+PHP namespace renamed from `Geekset\OctaneDoctor\` to `OctaneDoctor\`. Any custom rule, ignore-list FQCN, or programmatic consumer must update its imports.
+
+Single search and replace fixes a host application:
+
+```bash
+sed -i '' 's/Geekset\\OctaneDoctor/OctaneDoctor/g' \
+composer.json config/octane-doctor.php app/**/*.php
+```
+
+This is the second half of the move out of `geekset/` and into the `octane-doctor` GitHub organisation. The Composer package name flipped in 0.7.0; this release flips the PHP namespace so the two are consistent.
+
+### What's Changed
+
+* Rename PHP namespace Geekset\OctaneDoctor to OctaneDoctor by @gayansanjeewa in https://github.com/octane-doctor/octane-doctor/pull/30
+
+**Full Changelog**: https://github.com/octane-doctor/octane-doctor/compare/0.7.0...0.8.0
 
 ## [0.7.0](https://github.com/octane-doctor/octane-doctor/compare/0.6.0...0.7.0) - 2026-05-18
 
