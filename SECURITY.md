@@ -15,13 +15,13 @@ The supported PHP and Laravel matrix matches Laravel Octane itself: PHP 8.3 or 8
 
 Do not open a public issue for security problems.
 
-Preferred: open a [private security advisory](https://github.com/geekset/octane-doctor/security/advisories/new) on GitHub.
+Preferred: open a [private security advisory](https://github.com/octane-doctor/octane-doctor/security/advisories/new) on GitHub.
 
 Fallback: email `iamgayan@gmail.com` with the subject `[octane-doctor security]`.
 
 Include:
 
-* Affected version(s) of `geekset/octane-doctor`.
+* Affected version(s) of `octane-doctor/octane-doctor`.
 * A short description of the issue.
 * Steps to reproduce, or a proof-of-concept if you have one.
 * The impact you expect on a real host application.

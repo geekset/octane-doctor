@@ -13,7 +13,7 @@ The matrix targets the same PHP and Laravel versions as Laravel Octane itself.
 ## Local setup
 
 ```bash
-git clone git@github.com:geekset/octane-doctor.git
+git clone git@github.com:octane-doctor/octane-doctor.git
 cd octane-doctor
 composer install
 ```
@@ -84,7 +84,7 @@ Use a Composer path repository to point an existing Laravel app at your local ch
 ```bash
 cd /path/to/host-app
 composer config repositories.octane-doctor path /path/to/octane-doctor
-composer require geekset/octane-doctor:@dev --dev
+composer require octane-doctor/octane-doctor:@dev --dev
 php artisan octane-doctor:scan
 ```
 
