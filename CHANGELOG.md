@@ -4,67 +4,67 @@ All notable changes to `octane-doctor` will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/geekset/octane-doctor/compare/0.6.0...HEAD)
+## [Unreleased](https://github.com/octane-doctor/octane-doctor/compare/0.6.0...HEAD)
 
-## [0.6.0](https://github.com/geekset/octane-doctor/compare/0.5.0...0.6.0) - 2026-05-18
-
-### What's Changed
-
-* Add logo mark and wordmark to art/ by @gayansanjeewa in https://github.com/geekset/octane-doctor/pull/27
-* Use wordmark image in README hero by @gayansanjeewa in https://github.com/geekset/octane-doctor/pull/28
-
-**Full Changelog**: https://github.com/geekset/octane-doctor/compare/0.5.0...0.6.0
-
-## [0.5.0](https://github.com/geekset/octane-doctor/compare/0.4.0...0.5.0) - 2026-05-18
+## [0.6.0](https://github.com/octane-doctor/octane-doctor/compare/0.5.0...0.6.0) - 2026-05-18
 
 ### What's Changed
 
-* Add social preview image source and rendered PNG to art/ by @gayansanjeewa in https://github.com/geekset/octane-doctor/pull/26
+* Add logo mark and wordmark to art/ by @gayansanjeewa in https://github.com/octane-doctor/octane-doctor/pull/27
+* Use wordmark image in README hero by @gayansanjeewa in https://github.com/octane-doctor/octane-doctor/pull/28
 
-**Full Changelog**: https://github.com/geekset/octane-doctor/compare/0.4.0...0.5.0
+**Full Changelog**: https://github.com/octane-doctor/octane-doctor/compare/0.5.0...0.6.0
 
-## [0.4.0](https://github.com/geekset/octane-doctor/compare/0.3.0...0.4.0) - 2026-05-17
-
-### What's Changed
-
-* Polish GitHub homepage: hero, example output, community files by @gayansanjeewa in https://github.com/geekset/octane-doctor/pull/24
-* Add markdown feature-request issue template by @gayansanjeewa in https://github.com/geekset/octane-doctor/pull/25
-
-**Full Changelog**: https://github.com/geekset/octane-doctor/compare/0.3.0...0.4.0
-
-## [0.3.0](https://github.com/geekset/octane-doctor/compare/0.2.1...0.3.0) - 2026-05-16
+## [0.5.0](https://github.com/octane-doctor/octane-doctor/compare/0.4.0...0.5.0) - 2026-05-18
 
 ### What's Changed
 
-* Safe-list Filament static configuration properties by @gayansanjeewa in https://github.com/geekset/octane-doctor/pull/23
+* Add social preview image source and rendered PNG to art/ by @gayansanjeewa in https://github.com/octane-doctor/octane-doctor/pull/26
 
-**Full Changelog**: https://github.com/geekset/octane-doctor/compare/0.2.1...0.3.0
+**Full Changelog**: https://github.com/octane-doctor/octane-doctor/compare/0.4.0...0.5.0
 
-## [0.2.1](https://github.com/geekset/octane-doctor/compare/0.2.0...0.2.1) - 2026-05-15
-
-### What's Changed
-
-* Exclude internal docs and tooling from composer dist by @gayansanjeewa in https://github.com/geekset/octane-doctor/pull/21
-
-**Full Changelog**: https://github.com/geekset/octane-doctor/compare/0.2.0...0.2.1
-
-## [0.2.0](https://github.com/geekset/octane-doctor/compare/0.1.1...0.2.0) - 2026-05-15
+## [0.4.0](https://github.com/octane-doctor/octane-doctor/compare/0.3.0...0.4.0) - 2026-05-17
 
 ### What's Changed
 
-* Render scan output through Termwind for Pest-style terminal UI by @gayansanjeewa in https://github.com/geekset/octane-doctor/pull/20
+* Polish GitHub homepage: hero, example output, community files by @gayansanjeewa in https://github.com/octane-doctor/octane-doctor/pull/24
+* Add markdown feature-request issue template by @gayansanjeewa in https://github.com/octane-doctor/octane-doctor/pull/25
 
-**Full Changelog**: https://github.com/geekset/octane-doctor/compare/0.1.1...0.2.0
+**Full Changelog**: https://github.com/octane-doctor/octane-doctor/compare/0.3.0...0.4.0
 
-## [0.1.1](https://github.com/geekset/octane-doctor/compare/0.1.0...0.1.1) - 2026-05-15
+## [0.3.0](https://github.com/octane-doctor/octane-doctor/compare/0.2.1...0.3.0) - 2026-05-16
 
 ### What's Changed
 
-* Cleanup 0.1.0 release: drop duplicate header and v prefix by @gayansanjeewa in https://github.com/geekset/octane-doctor/pull/19
+* Safe-list Filament static configuration properties by @gayansanjeewa in https://github.com/octane-doctor/octane-doctor/pull/23
 
-**Full Changelog**: https://github.com/geekset/octane-doctor/compare/0.1.0...0.1.1
+**Full Changelog**: https://github.com/octane-doctor/octane-doctor/compare/0.2.1...0.3.0
 
-## [0.1.0](https://github.com/geekset/octane-doctor/releases/tag/0.1.0) - 2026-05-15
+## [0.2.1](https://github.com/octane-doctor/octane-doctor/compare/0.2.0...0.2.1) - 2026-05-15
+
+### What's Changed
+
+* Exclude internal docs and tooling from composer dist by @gayansanjeewa in https://github.com/octane-doctor/octane-doctor/pull/21
+
+**Full Changelog**: https://github.com/octane-doctor/octane-doctor/compare/0.2.0...0.2.1
+
+## [0.2.0](https://github.com/octane-doctor/octane-doctor/compare/0.1.1...0.2.0) - 2026-05-15
+
+### What's Changed
+
+* Render scan output through Termwind for Pest-style terminal UI by @gayansanjeewa in https://github.com/octane-doctor/octane-doctor/pull/20
+
+**Full Changelog**: https://github.com/octane-doctor/octane-doctor/compare/0.1.1...0.2.0
+
+## [0.1.1](https://github.com/octane-doctor/octane-doctor/compare/0.1.0...0.1.1) - 2026-05-15
+
+### What's Changed
+
+* Cleanup 0.1.0 release: drop duplicate header and v prefix by @gayansanjeewa in https://github.com/octane-doctor/octane-doctor/pull/19
+
+**Full Changelog**: https://github.com/octane-doctor/octane-doctor/compare/0.1.0...0.1.1
+
+## [0.1.0](https://github.com/octane-doctor/octane-doctor/releases/tag/0.1.0) - 2026-05-15
 
 First MVP release. Implements the scanner foundation, CLI surface, and seven high signal rules described in `octane_doctor_specification.md`.
 

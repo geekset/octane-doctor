@@ -24,7 +24,7 @@
     </text>
 
     <rect x="0" y="280" width="680" height="60" rx="8" fill="#FFFFFF" fill-opacity="0.05" stroke="#FFFFFF" stroke-opacity="0.1"/>
-    <text x="20" y="318" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="22" fill="#14B8A6" opacity="0.8">composer require geekset/octane-doctor --dev</text>
+    <text x="20" y="318" font-family="ui-monospace, 'JetBrains Mono', Menlo, monospace" font-size="22" fill="#14B8A6" opacity="0.8">composer require octane-doctor/octane-doctor --dev</text>
   </g>
 
   <!-- Right Visual -->
