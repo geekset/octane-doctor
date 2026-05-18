@@ -1,0 +1,45 @@
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <!-- Left curly brace -->
+  <path d="M 78 50
+           Q 58 50 58 75
+           L 58 105
+           Q 58 120 42 120
+           Q 58 120 58 135
+           L 58 165
+           Q 58 190 78 190"
+        fill="none"
+        stroke="#14B8A6"
+        stroke-width="12"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <!-- Right curly brace -->
+  <path d="M 162 50
+           Q 182 50 182 75
+           L 182 105
+           Q 182 120 198 120
+           Q 182 120 182 135
+           L 182 165
+           Q 182 190 162 190"
+        fill="none"
+        stroke="#14B8A6"
+        stroke-width="12"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <!-- Heartbeat pulse line: code-health metaphor -->
+  <path d="M 75 120
+           L 100 120
+           L 108 105
+           L 116 135
+           L 128 70
+           L 140 165
+           L 152 110
+           L 160 120
+           L 165 120"
+        fill="none"
+        stroke="#0F172A"
+        stroke-width="9"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+</svg>
