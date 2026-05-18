@@ -10,8 +10,10 @@ _Detect long-lived worker risks in Laravel apps before they bite production._
 [![PHP Version](https://img.shields.io/packagist/dependency-v/octane-doctor/octane-doctor/php?style=flat-square)](https://packagist.org/packages/octane-doctor/octane-doctor)
 [![Tests](https://img.shields.io/github/actions/workflow/status/octane-doctor/octane-doctor/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/octane-doctor/octane-doctor/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![Code Style](https://img.shields.io/github/actions/workflow/status/octane-doctor/octane-doctor/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/octane-doctor/octane-doctor/actions?query=workflow%3A%22Fix+PHP+code+style+issues%22+branch%3Amain)
-[![License](https://img.shields.io/packagist/l/octane-doctor/octane-doctor.svg?style=flat-square)](LICENSE.md)
+[![License](https://img.shields.io/github/license/octane-doctor/octane-doctor?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/octane-doctor/octane-doctor.svg?style=flat-square)](https://packagist.org/packages/octane-doctor/octane-doctor)
+
+<img src="art/octane-og.png" alt="Octane Doctor — Laravel Octane readiness scanner" width="720">
 
 </div>
 
