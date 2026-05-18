@@ -1,6 +1,6 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Tests\Fixtures\SuspiciousSingleton;
+namespace OctaneDoctor\Tests\Fixtures\SuspiciousSingleton;
 
 class BenignCacheService
 {

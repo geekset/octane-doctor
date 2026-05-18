@@ -1,8 +1,8 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Baseline;
+namespace OctaneDoctor\Baseline;
 
-use Geekset\OctaneDoctor\Finding;
+use OctaneDoctor\Finding;
 
 /**
  * Persists scan findings as a fingerprint snapshot on disk. The

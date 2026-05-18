@@ -1,13 +1,13 @@
 <?php
 
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Rules\Builtin\SuspiciousSingletonName;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
-use Geekset\OctaneDoctor\Tests\Fixtures\SuspiciousSingleton\BenignCacheService;
-use Geekset\OctaneDoctor\Tests\Fixtures\SuspiciousSingleton\CurrentUser;
-use Geekset\OctaneDoctor\Tests\Fixtures\SuspiciousSingleton\TenantContext;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Builtin\SuspiciousSingletonName;
+use OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Tests\Fixtures\SuspiciousSingleton\BenignCacheService;
+use OctaneDoctor\Tests\Fixtures\SuspiciousSingleton\CurrentUser;
+use OctaneDoctor\Tests\Fixtures\SuspiciousSingleton\TenantContext;
 
 function runSuspiciousSingletonNameRule(): array
 {

@@ -1,11 +1,11 @@
 <?php
 
-use Geekset\OctaneDoctor\Ast\FileWalker;
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Rules\Builtin\RequestContextAsProperty;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Ast\FileWalker;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Builtin\RequestContextAsProperty;
+use OctaneDoctor\Scanning\ScanContext;
 
 beforeEach(function () {
     $this->fixturesPath = __DIR__.'/../../Fixtures/RequestContext';
@@ -27,7 +27,7 @@ it('flags a typed property holding a Request instance', function () {
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)->toContain(
-        'Geekset\OctaneDoctor\Tests\Fixtures\RequestContext\HoldsRequestProperty::$request'
+        'OctaneDoctor\Tests\Fixtures\RequestContext\HoldsRequestProperty::$request'
     );
 });
 
@@ -37,7 +37,7 @@ it('flags a constructor-promoted Request property', function () {
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)->toContain(
-        'Geekset\OctaneDoctor\Tests\Fixtures\RequestContext\HoldsPromotedRequest::$request'
+        'OctaneDoctor\Tests\Fixtures\RequestContext\HoldsPromotedRequest::$request'
     );
 });
 
@@ -47,7 +47,7 @@ it('flags an auth Guard property', function () {
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)->toContain(
-        'Geekset\OctaneDoctor\Tests\Fixtures\RequestContext\HoldsAuthGuard::$guard'
+        'OctaneDoctor\Tests\Fixtures\RequestContext\HoldsAuthGuard::$guard'
     );
 });
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Rules;
+namespace OctaneDoctor\Rules;
 
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Scanning\ScanContext;
 
 interface Rule
 {

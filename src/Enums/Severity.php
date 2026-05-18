@@ -1,6 +1,6 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Enums;
+namespace OctaneDoctor\Enums;
 
 enum Severity: string
 {

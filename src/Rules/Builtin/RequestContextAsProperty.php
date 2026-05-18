@@ -1,15 +1,15 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Rules\Builtin;
+namespace OctaneDoctor\Rules\Builtin;
 
-use Geekset\OctaneDoctor\Ast\FileWalker;
-use Geekset\OctaneDoctor\Ast\ParsedFile;
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Rules\Rule;
-use Geekset\OctaneDoctor\Rules\RuleExplanation;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Ast\FileWalker;
+use OctaneDoctor\Ast\ParsedFile;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Rule;
+use OctaneDoctor\Rules\RuleExplanation;
+use OctaneDoctor\Scanning\ScanContext;
 use PhpParser\Node;
 use PhpParser\Node\ComplexType;
 use PhpParser\Node\Identifier;

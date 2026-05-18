@@ -1,6 +1,6 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Ast;
+namespace OctaneDoctor\Ast;
 
 use PhpParser\Error;
 use PhpParser\Parser;

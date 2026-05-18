@@ -1,8 +1,8 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Baseline;
+namespace OctaneDoctor\Baseline;
 
-use Geekset\OctaneDoctor\Finding;
+use OctaneDoctor\Finding;
 
 final readonly class Baseline
 {

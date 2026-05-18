@@ -1,6 +1,6 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Tests\Fixtures\RequestContext;
+namespace OctaneDoctor\Tests\Fixtures\RequestContext;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;

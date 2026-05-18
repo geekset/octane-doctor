@@ -251,17 +251,17 @@ Each rule contains a per dispatch and per request safe list so events, mailables
 
 ## Custom rules
 
-Implement `Geekset\OctaneDoctor\Rules\Rule` and register the class in `octane-doctor.custom_rules`:
+Implement `OctaneDoctor\Rules\Rule` and register the class in `octane-doctor.custom_rules`:
 
 ```php
 namespace App\Octane\Rules;
 
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Rules\Rule;
-use Geekset\OctaneDoctor\Rules\RuleExplanation;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Rule;
+use OctaneDoctor\Rules\RuleExplanation;
+use OctaneDoctor\Scanning\ScanContext;
 
 class ForbidTenantContext implements Rule
 {

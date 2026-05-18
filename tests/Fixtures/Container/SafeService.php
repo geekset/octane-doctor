@@ -1,6 +1,6 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Tests\Fixtures\Container;
+namespace OctaneDoctor\Tests\Fixtures\Container;
 
 use Illuminate\Contracts\Cache\Repository;
 

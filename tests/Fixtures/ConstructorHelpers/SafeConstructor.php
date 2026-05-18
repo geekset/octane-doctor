@@ -1,6 +1,6 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Tests\Fixtures\ConstructorHelpers;
+namespace OctaneDoctor\Tests\Fixtures\ConstructorHelpers;
 
 use Illuminate\Contracts\Foundation\Application;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Tests\Fixtures\RequestInSingleton;
+namespace OctaneDoctor\Tests\Fixtures\RequestInSingleton;
 
 use Illuminate\Contracts\Auth\Guard;
 

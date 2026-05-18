@@ -1,9 +1,9 @@
 <?php
 
-namespace Geekset\OctaneDoctor;
+namespace OctaneDoctor;
 
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
 
 final readonly class Finding
 {

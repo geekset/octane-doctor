@@ -1,10 +1,10 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Scanning;
+namespace OctaneDoctor\Scanning;
 
-use Geekset\OctaneDoctor\Exceptions\InvalidRule;
-use Geekset\OctaneDoctor\Rules\Rule;
 use Illuminate\Contracts\Foundation\Application;
+use OctaneDoctor\Exceptions\InvalidRule;
+use OctaneDoctor\Rules\Rule;
 
 /**
  * Resolves rule classes (built-in and host-provided) into instances

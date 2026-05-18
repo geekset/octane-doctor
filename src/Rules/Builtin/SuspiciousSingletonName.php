@@ -1,13 +1,13 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Rules\Builtin;
+namespace OctaneDoctor\Rules\Builtin;
 
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Rules\Rule;
-use Geekset\OctaneDoctor\Rules\RuleExplanation;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Rule;
+use OctaneDoctor\Rules\RuleExplanation;
+use OctaneDoctor\Scanning\ScanContext;
 use ReflectionClass;
 use ReflectionException;
 

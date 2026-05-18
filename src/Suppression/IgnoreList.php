@@ -1,8 +1,8 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Suppression;
+namespace OctaneDoctor\Suppression;
 
-use Geekset\OctaneDoctor\Finding;
+use OctaneDoctor\Finding;
 
 /**
  * Suppression list driven by the `octane-doctor.ignore` config key.

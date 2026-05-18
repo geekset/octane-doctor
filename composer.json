@@ -38,12 +38,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Geekset\\OctaneDoctor\\": "src/"
+            "OctaneDoctor\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Geekset\\OctaneDoctor\\Tests\\": "tests/",
+            "OctaneDoctor\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -65,7 +65,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Geekset\\OctaneDoctor\\OctaneDoctorServiceProvider"
+                "OctaneDoctor\\OctaneDoctorServiceProvider"
             ]
         }
     },

@@ -1,6 +1,6 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Scanning;
+namespace OctaneDoctor\Scanning;
 
 use Illuminate\Contracts\Foundation\Application;
 

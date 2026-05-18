@@ -1,11 +1,11 @@
 <?php
 
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Rules\Rule;
-use Geekset\OctaneDoctor\Rules\RuleExplanation;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
 use Illuminate\Support\Facades\Artisan;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Rules\Rule;
+use OctaneDoctor\Rules\RuleExplanation;
+use OctaneDoctor\Scanning\ScanContext;
 
 class ExplainFixtureRule implements Rule
 {

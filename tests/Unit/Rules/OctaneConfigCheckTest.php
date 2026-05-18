@@ -1,11 +1,11 @@
 <?php
 
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Rules\Builtin\OctaneConfigCheck;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
 use Illuminate\Support\Facades\File;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Builtin\OctaneConfigCheck;
+use OctaneDoctor\Scanning\ScanContext;
 
 beforeEach(function () {
     $this->tempDir = sys_get_temp_dir().'/octane-doctor-config-test-'.uniqid();

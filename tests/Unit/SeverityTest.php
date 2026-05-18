@@ -1,6 +1,6 @@
 <?php
 
-use Geekset\OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Enums\Severity;
 
 it('orders severities so high outranks lower levels', function () {
     expect(Severity::High->isAtLeast(Severity::Medium))->toBeTrue()
