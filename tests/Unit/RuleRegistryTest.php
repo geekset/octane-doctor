@@ -1,12 +1,12 @@
 <?php
 
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Exceptions\InvalidRule;
-use Geekset\OctaneDoctor\Rules\Rule;
-use Geekset\OctaneDoctor\Rules\RuleExplanation;
-use Geekset\OctaneDoctor\Scanning\RuleRegistry;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Exceptions\InvalidRule;
+use OctaneDoctor\Rules\Rule;
+use OctaneDoctor\Rules\RuleExplanation;
+use OctaneDoctor\Scanning\RuleRegistry;
+use OctaneDoctor\Scanning\ScanContext;
 
 class RegistryFixtureRule implements Rule
 {

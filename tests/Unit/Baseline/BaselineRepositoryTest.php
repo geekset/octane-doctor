@@ -1,10 +1,10 @@
 <?php
 
-use Geekset\OctaneDoctor\Baseline\Baseline;
-use Geekset\OctaneDoctor\Baseline\BaselineRepository;
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
+use OctaneDoctor\Baseline\Baseline;
+use OctaneDoctor\Baseline\BaselineRepository;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
 
 beforeEach(function () {
     $this->path = sys_get_temp_dir().'/octane-doctor-baseline-'.uniqid().'.json';

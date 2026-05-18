@@ -1,11 +1,11 @@
 <?php
 
-use Geekset\OctaneDoctor\Ast\FileWalker;
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Rules\Builtin\RiskyHelpersInConstructor;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Ast\FileWalker;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Builtin\RiskyHelpersInConstructor;
+use OctaneDoctor\Scanning\ScanContext;
 
 beforeEach(function () {
     $this->fixturesPath = __DIR__.'/../../Fixtures/ConstructorHelpers';

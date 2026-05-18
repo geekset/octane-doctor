@@ -1,9 +1,9 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Exceptions;
+namespace OctaneDoctor\Exceptions;
 
 use Exception;
-use Geekset\OctaneDoctor\Rules\Rule;
+use OctaneDoctor\Rules\Rule;
 
 class InvalidRule extends Exception
 {

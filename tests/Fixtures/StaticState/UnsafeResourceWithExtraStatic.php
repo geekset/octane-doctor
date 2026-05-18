@@ -1,6 +1,6 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Tests\Fixtures\StaticState;
+namespace OctaneDoctor\Tests\Fixtures\StaticState;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 

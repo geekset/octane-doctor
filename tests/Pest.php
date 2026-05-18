@@ -1,5 +1,5 @@
 <?php
 
-use Geekset\OctaneDoctor\Tests\TestCase;
+use OctaneDoctor\Tests\TestCase;
 
 uses(TestCase::class)->in('Unit', 'Feature');

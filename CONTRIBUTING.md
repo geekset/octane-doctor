@@ -64,7 +64,7 @@ The PR title becomes the squash commit subject, so the same convention applies t
 
 ## Writing a new rule
 
-A rule implements `Geekset\OctaneDoctor\Rules\Rule`. The interface requires:
+A rule implements `OctaneDoctor\Rules\Rule`. The interface requires:
 
 * `id()` returns the kebab-case identifier used on the CLI.
 * `title()` returns a short human label.

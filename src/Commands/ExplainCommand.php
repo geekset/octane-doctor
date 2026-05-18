@@ -1,10 +1,10 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Commands;
+namespace OctaneDoctor\Commands;
 
-use Geekset\OctaneDoctor\Rules\Rule;
-use Geekset\OctaneDoctor\Scanning\RuleRegistry;
 use Illuminate\Console\Command;
+use OctaneDoctor\Rules\Rule;
+use OctaneDoctor\Scanning\RuleRegistry;
 
 /**
  * Prints the detailed explanation, remediation, and examples for one

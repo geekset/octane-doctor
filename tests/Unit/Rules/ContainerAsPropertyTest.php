@@ -1,11 +1,11 @@
 <?php
 
-use Geekset\OctaneDoctor\Ast\FileWalker;
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Rules\Builtin\ContainerAsProperty;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Ast\FileWalker;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Builtin\ContainerAsProperty;
+use OctaneDoctor\Scanning\ScanContext;
 
 beforeEach(function () {
     $this->fixturesPath = __DIR__.'/../../Fixtures/Container';
@@ -27,7 +27,7 @@ it('flags a constructor-promoted Container property', function () {
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)->toContain(
-        'Geekset\OctaneDoctor\Tests\Fixtures\Container\HoldsContainerProperty::$container'
+        'OctaneDoctor\Tests\Fixtures\Container\HoldsContainerProperty::$container'
     );
 });
 
@@ -37,7 +37,7 @@ it('flags a regular Application property assigned in the constructor', function 
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)->toContain(
-        'Geekset\OctaneDoctor\Tests\Fixtures\Container\HoldsApplicationProperty::$app'
+        'OctaneDoctor\Tests\Fixtures\Container\HoldsApplicationProperty::$app'
     );
 });
 

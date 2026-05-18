@@ -1,11 +1,11 @@
 <?php
 
-use Geekset\OctaneDoctor\Ast\FileWalker;
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Rules\Builtin\MutableStaticState;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Ast\FileWalker;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Builtin\MutableStaticState;
+use OctaneDoctor\Scanning\ScanContext;
 
 beforeEach(function () {
     $this->fixturesPath = __DIR__.'/../../Fixtures/StaticState';
@@ -27,9 +27,9 @@ it('flags every class that declares a mutable static property', function () {
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)
-        ->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\BadCache::$cache')
-        ->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\BadCounter::$count')
-        ->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\BadTrait::$tenant');
+        ->toContain('OctaneDoctor\Tests\Fixtures\StaticState\BadCache::$cache')
+        ->toContain('OctaneDoctor\Tests\Fixtures\StaticState\BadCounter::$count')
+        ->toContain('OctaneDoctor\Tests\Fixtures\StaticState\BadTrait::$tenant');
 });
 
 it('ignores classes that only carry instance state and constants', function () {
@@ -38,7 +38,7 @@ it('ignores classes that only carry instance state and constants', function () {
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)->not->toContain(
-        'Geekset\OctaneDoctor\Tests\Fixtures\StaticState\GoodInstanceState::$cache'
+        'OctaneDoctor\Tests\Fixtures\StaticState\GoodInstanceState::$cache'
     );
 });
 
@@ -47,7 +47,7 @@ it('produces findings with the expected metadata', function () {
 
     $finding = collect($findings)->firstWhere(
         'symbol',
-        'Geekset\OctaneDoctor\Tests\Fixtures\StaticState\BadCounter::$count'
+        'OctaneDoctor\Tests\Fixtures\StaticState\BadCounter::$count'
     );
 
     expect($finding)->not->toBeNull()
@@ -70,7 +70,7 @@ it('skips JsonResource::$wrap overrides because they are class-definition config
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)->not->toContain(
-        'Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeResourceWrap::$wrap'
+        'OctaneDoctor\Tests\Fixtures\StaticState\SafeResourceWrap::$wrap'
     );
 });
 
@@ -80,8 +80,8 @@ it('skips Eloquent Model::$snakeAttributes and Model::$unguarded overrides', fun
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeEloquentOverrides::$snakeAttributes')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeEloquentOverrides::$unguarded');
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeEloquentOverrides::$snakeAttributes')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeEloquentOverrides::$unguarded');
 });
 
 it('still flags non-allow-listed static properties on resources that override $wrap', function () {
@@ -90,8 +90,8 @@ it('still flags non-allow-listed static properties on resources that override $w
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)
-        ->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\UnsafeResourceWithExtraStatic::$cache')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\UnsafeResourceWithExtraStatic::$wrap');
+        ->toContain('OctaneDoctor\Tests\Fixtures\StaticState\UnsafeResourceWithExtraStatic::$cache')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\UnsafeResourceWithExtraStatic::$wrap');
 });
 
 it('skips Filament configuration static properties on Filament Resources, Pages and Widgets', function () {
@@ -100,17 +100,17 @@ it('skips Filament configuration static properties on Filament Resources, Pages 
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$navigationLabel')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$modelLabel')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$pluralModelLabel')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$navigationIcon')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$navigationSort')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$view')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$navigationIcon')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$title')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$relationship')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentWidget::$sort')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentWidget::$navigationIcon');
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$navigationLabel')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$modelLabel')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$pluralModelLabel')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$navigationIcon')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentResource::$navigationSort')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$view')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$navigationIcon')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$title')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentPage::$relationship')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentWidget::$sort')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\SafeFilamentWidget::$navigationIcon');
 });
 
 it('still flags non-Filament static properties on classes that extend Filament parents', function () {
@@ -119,6 +119,6 @@ it('still flags non-Filament static properties on classes that extend Filament p
     $symbols = array_map(fn (Finding $f) => $f->symbol, $findings);
 
     expect($symbols)
-        ->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\UnsafeFilamentResourceWithExtraStatic::$cache')
-        ->not->toContain('Geekset\OctaneDoctor\Tests\Fixtures\StaticState\UnsafeFilamentResourceWithExtraStatic::$navigationLabel');
+        ->toContain('OctaneDoctor\Tests\Fixtures\StaticState\UnsafeFilamentResourceWithExtraStatic::$cache')
+        ->not->toContain('OctaneDoctor\Tests\Fixtures\StaticState\UnsafeFilamentResourceWithExtraStatic::$navigationLabel');
 });

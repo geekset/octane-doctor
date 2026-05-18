@@ -1,9 +1,9 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Scanning;
+namespace OctaneDoctor\Scanning;
 
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
 
 final readonly class ScanResult
 {

@@ -1,13 +1,13 @@
 <?php
 
-use Geekset\OctaneDoctor\Enums\Category;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Rules\Builtin\RequestInSingleton;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
-use Geekset\OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsCache;
-use Geekset\OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsGuard;
-use Geekset\OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsRequest;
+use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Builtin\RequestInSingleton;
+use OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsCache;
+use OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsGuard;
+use OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsRequest;
 
 function runRequestInSingletonRule(): array
 {

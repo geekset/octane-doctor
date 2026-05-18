@@ -1,12 +1,12 @@
 <?php
 
-use Geekset\OctaneDoctor\Rules\Builtin\ContainerAsProperty;
-use Geekset\OctaneDoctor\Rules\Builtin\MutableStaticState;
-use Geekset\OctaneDoctor\Rules\Builtin\OctaneConfigCheck;
-use Geekset\OctaneDoctor\Rules\Builtin\RequestContextAsProperty;
-use Geekset\OctaneDoctor\Rules\Builtin\RequestInSingleton;
-use Geekset\OctaneDoctor\Rules\Builtin\RiskyHelpersInConstructor;
-use Geekset\OctaneDoctor\Rules\Builtin\SuspiciousSingletonName;
+use OctaneDoctor\Rules\Builtin\ContainerAsProperty;
+use OctaneDoctor\Rules\Builtin\MutableStaticState;
+use OctaneDoctor\Rules\Builtin\OctaneConfigCheck;
+use OctaneDoctor\Rules\Builtin\RequestContextAsProperty;
+use OctaneDoctor\Rules\Builtin\RequestInSingleton;
+use OctaneDoctor\Rules\Builtin\RiskyHelpersInConstructor;
+use OctaneDoctor\Rules\Builtin\SuspiciousSingletonName;
 
 return [
 
@@ -49,7 +49,7 @@ return [
 
     /*
      * Custom rule classes registered by the host application. Each must
-     * implement Geekset\OctaneDoctor\Rules\Rule.
+     * implement OctaneDoctor\Rules\Rule.
      */
     'custom_rules' => [
     ],

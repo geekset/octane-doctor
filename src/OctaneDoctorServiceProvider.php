@@ -1,12 +1,12 @@
 <?php
 
-namespace Geekset\OctaneDoctor;
+namespace OctaneDoctor;
 
-use Geekset\OctaneDoctor\Commands\BaselineCommand;
-use Geekset\OctaneDoctor\Commands\ExplainCommand;
-use Geekset\OctaneDoctor\Commands\ScanCommand;
-use Geekset\OctaneDoctor\Scanning\RuleRegistry;
 use Illuminate\Contracts\Foundation\Application;
+use OctaneDoctor\Commands\BaselineCommand;
+use OctaneDoctor\Commands\ExplainCommand;
+use OctaneDoctor\Commands\ScanCommand;
+use OctaneDoctor\Scanning\RuleRegistry;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 

@@ -1,18 +1,18 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Commands;
+namespace OctaneDoctor\Commands;
 
-use Geekset\OctaneDoctor\Baseline\Baseline;
-use Geekset\OctaneDoctor\Baseline\BaselineRepository;
-use Geekset\OctaneDoctor\Enums\Severity;
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Scanning\RuleRegistry;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
-use Geekset\OctaneDoctor\Scanning\Scanner;
-use Geekset\OctaneDoctor\Scanning\ScanResult;
-use Geekset\OctaneDoctor\Suppression\IgnoreList;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Foundation\Application;
+use OctaneDoctor\Baseline\Baseline;
+use OctaneDoctor\Baseline\BaselineRepository;
+use OctaneDoctor\Enums\Severity;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Scanning\RuleRegistry;
+use OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Scanning\Scanner;
+use OctaneDoctor\Scanning\ScanResult;
+use OctaneDoctor\Suppression\IgnoreList;
 use Termwind\Termwind;
 
 use function Termwind\render;

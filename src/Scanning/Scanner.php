@@ -1,9 +1,9 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Scanning;
+namespace OctaneDoctor\Scanning;
 
-use Geekset\OctaneDoctor\Finding;
-use Geekset\OctaneDoctor\Rules\Rule;
+use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Rule;
 
 /**
  * Owns the scan lifecycle: invokes each rule against the shared

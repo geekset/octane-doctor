@@ -1,13 +1,13 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Commands;
+namespace OctaneDoctor\Commands;
 
-use Geekset\OctaneDoctor\Baseline\BaselineRepository;
-use Geekset\OctaneDoctor\Scanning\RuleRegistry;
-use Geekset\OctaneDoctor\Scanning\ScanContext;
-use Geekset\OctaneDoctor\Scanning\Scanner;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Foundation\Application;
+use OctaneDoctor\Baseline\BaselineRepository;
+use OctaneDoctor\Scanning\RuleRegistry;
+use OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Scanning\Scanner;
 
 /**
  * Snapshots the current scan results to a baseline file. Future runs

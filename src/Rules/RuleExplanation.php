@@ -1,6 +1,6 @@
 <?php
 
-namespace Geekset\OctaneDoctor\Rules;
+namespace OctaneDoctor\Rules;
 
 final readonly class RuleExplanation
 {
