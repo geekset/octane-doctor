@@ -119,18 +119,31 @@ class RequestInSingleton implements Rule
                 continue;
             }
 
-            yield from $this->inspectClass($abstract, $concreteClass);
+            yield from $this->inspectClass($abstract, $concreteClass, $context);
         }
     }
 
     /**
      * @return iterable<Finding>
      */
-    protected function inspectClass(string $abstract, string $concreteClass): iterable
+    protected function inspectClass(string $abstract, string $concreteClass, ScanContext $context): iterable
     {
         try {
             $reflection = new ReflectionClass($concreteClass);
         } catch (ReflectionException) {
+            return;
+        }
+
+        $fileName = $reflection->getFileName() !== false ? $reflection->getFileName() : null;
+
+        /*
+         * Respect the user's configured scan paths so a container
+         * walk does not emit vendor findings on a scope that was
+         * narrowed to app/. Bindings whose concrete class has no
+         * file (interface-only, internal class) are skipped because
+         * we cannot prove they belong to user code.
+         */
+        if (! $context->isPathInScope($fileName)) {
             return;
         }
 
@@ -155,7 +168,7 @@ class RequestInSingleton implements Rule
                 summary: "Singleton {$abstract} resolves {$concreteClass} whose constructor accepts {$matchedType}.",
                 whyItMatters: 'A singleton is built once per worker and reused across requests under Octane. A constructor that accepts the current Request, auth Guard, Route, or Session freezes that instance to the request that triggered the first resolution.',
                 remediation: 'Either move the binding to scoped() so it is rebuilt per request, or stop injecting the request-scoped dependency through the constructor and resolve it inside the method that uses it.',
-                filePath: $reflection->getFileName() !== false ? $reflection->getFileName() : null,
+                filePath: $fileName,
                 line: $constructor->getStartLine() > 0 ? $constructor->getStartLine() : null,
                 symbol: "{$concreteClass}::__construct",
             );
