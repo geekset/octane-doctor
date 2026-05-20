@@ -5,6 +5,7 @@ namespace OctaneDoctor\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Foundation\Application;
 use OctaneDoctor\Baseline\BaselineRepository;
+use OctaneDoctor\Commands\Concerns\ResolvesScanPaths;
 use OctaneDoctor\Scanning\RuleRegistry;
 use OctaneDoctor\Scanning\ScanContext;
 use OctaneDoctor\Scanning\Scanner;
@@ -18,6 +19,8 @@ use OctaneDoctor\Scanning\Scanner;
  */
 class BaselineCommand extends Command
 {
+    use ResolvesScanPaths;
+
     public $signature = 'octane-doctor:baseline
         {--path= : Override the baseline file path}';
 
@@ -33,9 +36,13 @@ class BaselineCommand extends Command
             return self::FAILURE;
         }
 
-        $paths = $this->resolvePaths();
+        $pathInfo = $this->resolvePathInfo();
 
-        $context = new ScanContext($app, $paths, $app->basePath());
+        foreach ($pathInfo['missing'] as $missing) {
+            $this->warn("WARNING: configured scan path does not exist: {$missing}");
+        }
+
+        $context = new ScanContext($app, $pathInfo['resolved'], $app->basePath());
         $scanner = new Scanner($registry->all());
 
         $result = $scanner->scan($context);
@@ -50,16 +57,6 @@ class BaselineCommand extends Command
         ));
 
         return self::SUCCESS;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    protected function resolvePaths(): array
-    {
-        $configured = config('octane-doctor.paths', []);
-
-        return array_values(array_filter($configured, fn ($path) => is_string($path) && is_dir($path)));
     }
 
     protected function resolvePath(): ?string

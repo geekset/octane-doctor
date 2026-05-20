@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Foundation\Application;
 use OctaneDoctor\Baseline\Baseline;
 use OctaneDoctor\Baseline\BaselineRepository;
+use OctaneDoctor\Commands\Concerns\ResolvesScanPaths;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Scanning\RuleRegistry;
@@ -25,6 +26,8 @@ use function Termwind\render;
  */
 class ScanCommand extends Command
 {
+    use ResolvesScanPaths;
+
     public $signature = 'octane-doctor:scan
         {--fail-on= : Lowest severity that should fail the run (high, medium, low, info)}
         {--format= : Output format (table, json)}
@@ -47,9 +50,9 @@ class ScanCommand extends Command
             ob_start();
         }
 
-        $paths = $this->resolvePaths();
+        $pathInfo = $this->resolvePathInfo();
 
-        $context = new ScanContext($app, $paths, $app->basePath());
+        $context = new ScanContext($app, $pathInfo['resolved'], $app->basePath());
 
         $scanner = new Scanner($registry->all());
 
@@ -70,9 +73,9 @@ class ScanCommand extends Command
                 fwrite(STDERR, $stray);
             }
 
-            $this->renderJson($filtered, $baselinedCount, $ignoredCount);
+            $this->renderJson($filtered, $baselinedCount, $ignoredCount, $pathInfo['missing']);
         } else {
-            $this->renderTable($filtered, $baselinedCount, $ignoredCount);
+            $this->renderTable($filtered, $baselinedCount, $ignoredCount, $pathInfo['missing']);
         }
 
         return $this->exitCode($filtered);
@@ -83,21 +86,6 @@ class ScanCommand extends Command
         $configured = $this->option('format') ?? config('octane-doctor.output', 'table');
 
         return in_array($configured, ['table', 'json'], true) ? $configured : 'table';
-    }
-
-    /**
-     * Drop missing directories silently. Legacy apps frequently keep
-     * config entries that no longer exist (custom domain folders,
-     * removed modules); failing the scan over a stale path would block
-     * adoption without telling the user anything they can act on.
-     *
-     * @return array<int, string>
-     */
-    protected function resolvePaths(): array
-    {
-        $configured = config('octane-doctor.paths', []);
-
-        return array_values(array_filter($configured, fn ($path) => is_string($path) && is_dir($path)));
     }
 
     protected function loadBaseline(BaselineRepository $repository): Baseline
@@ -150,9 +138,14 @@ class ScanCommand extends Command
         return new ScanResult($remaining, $result->scannedPaths, $result->durationMs);
     }
 
-    protected function renderTable(ScanResult $result, int $baselinedCount, int $ignoredCount): void
+    /**
+     * @param  array<int, string>  $missingPaths
+     */
+    protected function renderTable(ScanResult $result, int $baselinedCount, int $ignoredCount, array $missingPaths): void
     {
         Termwind::renderUsing($this->output);
+
+        $this->renderMissingPathWarnings($missingPaths);
 
         if ($result->count() === 0) {
             render(<<<'HTML'
@@ -174,6 +167,23 @@ class ScanCommand extends Command
         $this->renderFooter($result);
 
         $this->renderSuppressionSummary($baselinedCount, $ignoredCount);
+    }
+
+    /**
+     * @param  array<int, string>  $missingPaths
+     */
+    protected function renderMissingPathWarnings(array $missingPaths): void
+    {
+        foreach ($missingPaths as $path) {
+            $escaped = $this->escape($path);
+
+            render(<<<HTML
+                <div class="mx-2 mt-1">
+                    <span class="px-1 bg-yellow-500 text-black font-bold">WARNING</span>
+                    <span class="ml-1">configured scan path does not exist: {$escaped}</span>
+                </div>
+            HTML);
+        }
     }
 
     protected function renderFinding(Finding $finding): void
@@ -265,8 +275,20 @@ class ScanCommand extends Command
         return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
-    protected function renderJson(ScanResult $result, int $baselinedCount, int $ignoredCount): void
+    /**
+     * @param  array<int, string>  $missingPaths
+     */
+    protected function renderJson(ScanResult $result, int $baselinedCount, int $ignoredCount, array $missingPaths): void
     {
+        $warnings = array_map(
+            fn (string $path) => [
+                'code' => 'missing-scan-path',
+                'message' => "configured scan path does not exist: {$path}",
+                'path' => $path,
+            ],
+            $missingPaths,
+        );
+
         $payload = [
             'schema_version' => '1',
             'summary' => [
@@ -278,6 +300,7 @@ class ScanCommand extends Command
                 'baselined' => $baselinedCount,
                 'ignored' => $ignoredCount,
             ],
+            'warnings' => $warnings,
             'findings' => array_map(fn ($finding) => $finding->toArray(), $result->findings),
         ];
 

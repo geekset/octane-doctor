@@ -265,6 +265,44 @@ it('keeps JSON output parseable even when a rule writes to STDOUT', function () 
         ->and(json_decode($output, true))->toBeArray();
 });
 
+it('warns in table output when a configured scan path does not exist', function () {
+    config()->set('octane-doctor.rules', []);
+    config()->set('octane-doctor.paths', ['/no/such/dir']);
+    config()->set('octane-doctor.fail_on', 'never');
+
+    $exit = Artisan::call('octane-doctor:scan');
+    $output = Artisan::output();
+
+    expect($exit)->toBe(0)
+        ->and($output)->toContain('WARNING')
+        ->and($output)->toContain('/no/such/dir');
+});
+
+it('reports missing scan paths in the JSON warnings array', function () {
+    config()->set('octane-doctor.rules', []);
+    config()->set('octane-doctor.paths', ['/definitely/does/not/exist']);
+    config()->set('octane-doctor.fail_on', 'never');
+
+    Artisan::call('octane-doctor:scan', ['--format' => 'json']);
+    $payload = json_decode(trim(Artisan::output()), true);
+
+    expect($payload['warnings'])->toHaveCount(1)
+        ->and($payload['warnings'][0])
+        ->toHaveKey('code', 'missing-scan-path')
+        ->toHaveKey('path', '/definitely/does/not/exist');
+});
+
+it('emits an empty warnings array in JSON when every configured path exists', function () {
+    config()->set('octane-doctor.rules', []);
+    config()->set('octane-doctor.paths', [__DIR__]);
+    config()->set('octane-doctor.fail_on', 'never');
+
+    Artisan::call('octane-doctor:scan', ['--format' => 'json']);
+    $payload = json_decode(trim(Artisan::output()), true);
+
+    expect($payload['warnings'])->toBe([]);
+});
+
 it('reports baseline and ignore counts separately in JSON output', function () {
     CommandFixtureRule::$severity = Severity::High;
     config()->set('octane-doctor.rules', [CommandFixtureRule::class]);
