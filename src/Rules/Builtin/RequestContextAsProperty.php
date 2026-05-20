@@ -7,7 +7,7 @@ use OctaneDoctor\Ast\ParsedFile;
 use OctaneDoctor\Enums\Category;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
-use OctaneDoctor\Rules\Rule;
+use OctaneDoctor\Rules\AstVisitingRule;
 use OctaneDoctor\Rules\RuleExplanation;
 use OctaneDoctor\Scanning\ScanContext;
 use PhpParser\Node;
@@ -23,6 +23,7 @@ use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\Node\UnionType;
 use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitorAbstract;
 
@@ -38,7 +39,7 @@ use PhpParser\NodeVisitorAbstract;
  * risky-helpers-in-constructor rule so events, jobs, mailables,
  * notifications, form requests, and controllers are skipped.
  */
-class RequestContextAsProperty implements Rule
+class RequestContextAsProperty implements AstVisitingRule
 {
     /**
      * Type names whose instances are request scoped. Deliberately
@@ -122,20 +123,21 @@ class RequestContextAsProperty implements Rule
     public function run(ScanContext $context): iterable
     {
         foreach ($this->walker->walk($context->paths) as $parsed) {
-            yield from $this->inspect($parsed);
+            $visitor = $this->buildVisitor($parsed);
+            $traverser = new NodeTraverser(new NameResolver, $visitor);
+            $traverser->traverse($parsed->ast);
+
+            yield from $this->findingsFor($parsed, $visitor);
         }
     }
 
-    /**
-     * @return iterable<Finding>
-     */
-    protected function inspect(ParsedFile $parsed): iterable
+    public function buildVisitor(ParsedFile $parsed): NodeVisitor
     {
         $requestScopedTypes = self::REQUEST_SCOPED_TYPES;
         $perDispatchTraits = self::PER_DISPATCH_TRAITS;
         $perDispatchParents = self::PER_DISPATCH_PARENTS;
 
-        $visitor = new class($requestScopedTypes, $perDispatchTraits, $perDispatchParents) extends NodeVisitorAbstract
+        return new class($requestScopedTypes, $perDispatchTraits, $perDispatchParents) extends NodeVisitorAbstract
         {
             /** @var array<int, array{className: string, propertyName: string, typeName: string, line: int}> */
             public array $hits = [];
@@ -289,11 +291,14 @@ class RequestContextAsProperty implements Rule
                 return in_array($typeName, $this->requestScopedTypes, true);
             }
         };
+    }
 
-        $traverser = new NodeTraverser(new NameResolver, $visitor);
-        $traverser->traverse($parsed->ast);
+    public function findingsFor(ParsedFile $parsed, NodeVisitor $visitor): iterable
+    {
+        /** @var array<int, array{className: string, propertyName: string, typeName: string, line: int}> $hits */
+        $hits = property_exists($visitor, 'hits') ? $visitor->hits : [];
 
-        foreach ($visitor->hits as $hit) {
+        foreach ($hits as $hit) {
             yield new Finding(
                 ruleId: $this->id(),
                 title: $this->title(),

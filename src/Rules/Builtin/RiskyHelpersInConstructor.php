@@ -7,7 +7,7 @@ use OctaneDoctor\Ast\ParsedFile;
 use OctaneDoctor\Enums\Category;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
-use OctaneDoctor\Rules\Rule;
+use OctaneDoctor\Rules\AstVisitingRule;
 use OctaneDoctor\Rules\RuleExplanation;
 use OctaneDoctor\Scanning\ScanContext;
 use PhpParser\Node;
@@ -17,6 +17,7 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitorAbstract;
 
@@ -33,7 +34,7 @@ use PhpParser\NodeVisitorAbstract;
  * to cache the resolved instance, so we report at the declaration
  * site and let the developer decide.
  */
-class RiskyHelpersInConstructor implements Rule
+class RiskyHelpersInConstructor implements AstVisitingRule
 {
     /**
      * Global helper functions that pull request-scoped state.
@@ -134,21 +135,22 @@ class RiskyHelpersInConstructor implements Rule
     public function run(ScanContext $context): iterable
     {
         foreach ($this->walker->walk($context->paths) as $parsed) {
-            yield from $this->inspect($parsed);
+            $visitor = $this->buildVisitor($parsed);
+            $traverser = new NodeTraverser(new NameResolver, $visitor);
+            $traverser->traverse($parsed->ast);
+
+            yield from $this->findingsFor($parsed, $visitor);
         }
     }
 
-    /**
-     * @return iterable<Finding>
-     */
-    protected function inspect(ParsedFile $parsed): iterable
+    public function buildVisitor(ParsedFile $parsed): NodeVisitor
     {
         $functions = self::RISKY_FUNCTIONS;
         $staticCalls = self::RISKY_STATIC_CALLS;
         $perDispatchTraits = self::PER_DISPATCH_TRAITS;
         $perDispatchParents = self::PER_DISPATCH_PARENTS;
 
-        $visitor = new class($functions, $staticCalls, $perDispatchTraits, $perDispatchParents) extends NodeVisitorAbstract
+        return new class($functions, $staticCalls, $perDispatchTraits, $perDispatchParents) extends NodeVisitorAbstract
         {
             /** @var array<int, array{className: string, call: string, line: int}> */
             public array $hits = [];
@@ -256,11 +258,14 @@ class RiskyHelpersInConstructor implements Rule
                 return $parent !== null && in_array($parent, $this->perDispatchParents, true);
             }
         };
+    }
 
-        $traverser = new NodeTraverser(new NameResolver, $visitor);
-        $traverser->traverse($parsed->ast);
+    public function findingsFor(ParsedFile $parsed, NodeVisitor $visitor): iterable
+    {
+        /** @var array<int, array{className: string, call: string, line: int}> $hits */
+        $hits = property_exists($visitor, 'hits') ? $visitor->hits : [];
 
-        foreach ($visitor->hits as $hit) {
+        foreach ($hits as $hit) {
             yield new Finding(
                 ruleId: $this->id(),
                 title: $this->title(),
