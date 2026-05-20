@@ -100,10 +100,10 @@ php artisan vendor:publish --tag=octane-doctor-config
 
 ## Supported versions
 
-* PHP 8.3 and 8.4
-* Laravel 11.x, 12.x, and 13.x
+* PHP 8.2, 8.3, 8.4, 8.5
+* Laravel 10.x, 11.x, 12.x, 13.x
 
-The matrix matches the support window of Laravel Octane itself.
+PHP 8.2 is the floor because the package relies on `readonly` classes throughout the model. Laravel Octane itself requires PHP 8.2 on its current major, so this matrix matches the real ecosystem support window for the framework this package exists to protect.
 
 ## Quick start
 
