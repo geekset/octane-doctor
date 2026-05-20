@@ -51,6 +51,16 @@ it('flags an auth Guard property', function () {
     );
 });
 
+it('does not flag properties typed as AuthManager (long-lived manager)', function () {
+    $findings = runRequestContextAsPropertyRule($this->fixturesPath);
+
+    $matches = collect($findings)->filter(
+        fn (Finding $f) => str_contains($f->summary, 'HoldsAuthManager')
+    );
+
+    expect($matches)->toBeEmpty();
+});
+
 it('does not flag unrelated typed properties', function () {
     $findings = runRequestContextAsPropertyRule($this->fixturesPath);
 

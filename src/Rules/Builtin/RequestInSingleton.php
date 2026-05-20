@@ -33,16 +33,22 @@ class RequestInSingleton implements Rule
     /**
      * Fully qualified type names whose instances are request scoped.
      *
+     * Deliberately narrow. AuthManager and the auth Factory contract
+     * are the long-lived auth managers, not the per-request guard.
+     * Octane flushes auth state in prepareApplicationForNextOperation,
+     * so a singleton accepting AuthManager is not the same risk as one
+     * accepting the resolved Guard, and flagging it produces noisy
+     * HIGH findings on packages like spatie/laravel-activitylog.
+     * The Router is the manager that owns the matched Route, so it is
+     * skipped for the same reason.
+     *
      * @var array<int, string>
      */
     protected const REQUEST_SCOPED_TYPES = [
         'Illuminate\\Http\\Request',
-        'Illuminate\\Auth\\AuthManager',
         'Illuminate\\Contracts\\Auth\\Guard',
         'Illuminate\\Contracts\\Auth\\StatefulGuard',
-        'Illuminate\\Contracts\\Auth\\Factory',
         'Illuminate\\Routing\\Route',
-        'Illuminate\\Routing\\Router',
         'Illuminate\\Session\\Store',
         'Illuminate\\Contracts\\Session\\Session',
     ];

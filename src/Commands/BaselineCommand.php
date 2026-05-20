@@ -35,7 +35,7 @@ class BaselineCommand extends Command
 
         $paths = $this->resolvePaths();
 
-        $context = new ScanContext($app, $paths);
+        $context = new ScanContext($app, $paths, $app->basePath());
         $scanner = new Scanner($registry->all());
 
         $result = $scanner->scan($context);

@@ -12,5 +12,6 @@ final readonly class ScanContext
     public function __construct(
         public Application $app,
         public array $paths,
+        public ?string $basePath = null,
     ) {}
 }

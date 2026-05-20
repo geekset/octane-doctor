@@ -29,6 +29,10 @@ class Scanner
 
         foreach ($this->rules as $rule) {
             foreach ($rule->run($context) as $finding) {
+                if ($context->basePath !== null) {
+                    $finding = $finding->relativizeFilePath($context->basePath);
+                }
+
                 $findings[] = $finding;
             }
         }

@@ -5,6 +5,7 @@ use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Builtin\RequestInSingleton;
 use OctaneDoctor\Scanning\ScanContext;
+use OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsAuthManager;
 use OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsCache;
 use OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsGuard;
 use OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsRequest;
@@ -43,6 +44,18 @@ it('flags a singleton whose constructor accepts a Guard', function () {
     );
 
     expect($matches)->not->toBeEmpty();
+});
+
+it('does not flag singletons that accept AuthManager (Octane flushes auth state)', function () {
+    app()->singleton(AcceptsAuthManager::class);
+
+    $findings = runRequestInSingletonRule();
+
+    $matches = collect($findings)->filter(
+        fn (Finding $f) => str_contains($f->summary, AcceptsAuthManager::class)
+    );
+
+    expect($matches)->toBeEmpty();
 });
 
 it('does not flag singletons whose constructor accepts unrelated types', function () {

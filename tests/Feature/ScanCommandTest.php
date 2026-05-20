@@ -217,6 +217,54 @@ it('suppresses findings whose fingerprint is listed in octane-doctor.ignore', fu
         ->and($output)->toContain('Ignore: 1 finding suppressed.');
 });
 
+class NoisyFixtureRule implements Rule
+{
+    public function id(): string
+    {
+        return 'noisy-rule';
+    }
+
+    public function title(): string
+    {
+        return 'Noisy rule';
+    }
+
+    public function severity(): Severity
+    {
+        return Severity::Low;
+    }
+
+    public function category(): Category
+    {
+        return Category::UnknownRisk;
+    }
+
+    public function explanation(): RuleExplanation
+    {
+        return new RuleExplanation(whyItMatters: 'noise', remediation: 'shh');
+    }
+
+    public function run(ScanContext $context): iterable
+    {
+        echo "stray write that must not corrupt json\n";
+
+        return [];
+    }
+}
+
+it('keeps JSON output parseable even when a rule writes to STDOUT', function () {
+    config()->set('octane-doctor.rules', [NoisyFixtureRule::class]);
+    config()->set('octane-doctor.paths', []);
+    config()->set('octane-doctor.fail_on', 'never');
+
+    $exit = Artisan::call('octane-doctor:scan', ['--format' => 'json']);
+    $output = trim(Artisan::output());
+
+    expect($exit)->toBe(0)
+        ->and($output)->not->toContain('stray write that must not corrupt json')
+        ->and(json_decode($output, true))->toBeArray();
+});
+
 it('reports baseline and ignore counts separately in JSON output', function () {
     CommandFixtureRule::$severity = Severity::High;
     config()->set('octane-doctor.rules', [CommandFixtureRule::class]);
