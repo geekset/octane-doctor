@@ -18,10 +18,41 @@ final readonly class Finding
         public ?string $filePath = null,
         public ?int $line = null,
         public ?string $symbol = null,
-        public bool $autofixable = false,
-        public ?string $autofixStrategyId = null,
         public ?string $docsUrl = null,
     ) {}
+
+    public function withFilePath(?string $filePath): self
+    {
+        return new self(
+            ruleId: $this->ruleId,
+            title: $this->title,
+            severity: $this->severity,
+            category: $this->category,
+            summary: $this->summary,
+            whyItMatters: $this->whyItMatters,
+            remediation: $this->remediation,
+            filePath: $filePath,
+            line: $this->line,
+            symbol: $this->symbol,
+            docsUrl: $this->docsUrl,
+        );
+    }
+
+    public function relativizeFilePath(string $basePath): self
+    {
+        if ($this->filePath === null || $basePath === '') {
+            return $this;
+        }
+
+        $normalizedBase = rtrim(str_replace('\\', '/', $basePath), '/').'/';
+        $normalizedPath = str_replace('\\', '/', $this->filePath);
+
+        if (! str_starts_with($normalizedPath, $normalizedBase)) {
+            return $this;
+        }
+
+        return $this->withFilePath(substr($normalizedPath, strlen($normalizedBase)));
+    }
 
     public function fingerprint(): string
     {
@@ -47,8 +78,6 @@ final readonly class Finding
      *     file_path: ?string,
      *     line: ?int,
      *     symbol: ?string,
-     *     autofixable: bool,
-     *     autofix_strategy_id: ?string,
      *     docs_url: ?string,
      *     fingerprint: string
      * }
@@ -66,8 +95,6 @@ final readonly class Finding
             'file_path' => $this->filePath,
             'line' => $this->line,
             'symbol' => $this->symbol,
-            'autofixable' => $this->autofixable,
-            'autofix_strategy_id' => $this->autofixStrategyId,
             'docs_url' => $this->docsUrl,
             'fingerprint' => $this->fingerprint(),
         ];

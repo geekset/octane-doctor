@@ -56,7 +56,7 @@ it('writes a baseline file with deterministic fingerprints', function () {
     $decoded = json_decode(file_get_contents($this->path), true);
 
     expect($decoded)
-        ->toHaveKey('schema_version', '1')
+        ->toHaveKey('schema_version', '2')
         ->toHaveKey('fingerprint_count', 2)
         ->and($decoded['fingerprints'])->toHaveCount(2);
 });

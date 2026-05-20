@@ -57,7 +57,7 @@ class BaselineRepository
         $generatedAt = date('c');
 
         $payload = [
-            'schema_version' => '1',
+            'schema_version' => '2',
             'generated_at' => $generatedAt,
             'fingerprint_count' => count($fingerprints),
             'fingerprints' => $fingerprints,

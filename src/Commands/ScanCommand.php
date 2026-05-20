@@ -34,9 +34,22 @@ class ScanCommand extends Command
 
     public function handle(Application $app, RuleRegistry $registry, BaselineRepository $repository): int
     {
+        $format = $this->resolveFormat();
+        $isJson = $format === 'json';
+
+        /*
+         * Buffer stray writes when emitting JSON so anything a rule
+         * or container resolution echoes during the scan ends up on
+         * STDERR instead of corrupting the machine-readable payload.
+         */
+        if ($isJson) {
+            ini_set('display_errors', 'stderr');
+            ob_start();
+        }
+
         $paths = $this->resolvePaths();
 
-        $context = new ScanContext($app, $paths);
+        $context = new ScanContext($app, $paths, $app->basePath());
 
         $scanner = new Scanner($registry->all());
 
@@ -50,10 +63,17 @@ class ScanCommand extends Command
         $filtered = $this->filterByBaseline($afterIgnore, $baseline);
         $baselinedCount = $afterIgnore->count() - $filtered->count();
 
-        match ($this->resolveFormat()) {
-            'json' => $this->renderJson($filtered, $baselinedCount, $ignoredCount),
-            default => $this->renderTable($filtered, $baselinedCount, $ignoredCount),
-        };
+        if ($isJson) {
+            $stray = ob_get_clean();
+
+            if (is_string($stray) && $stray !== '' && defined('STDERR')) {
+                fwrite(STDERR, $stray);
+            }
+
+            $this->renderJson($filtered, $baselinedCount, $ignoredCount);
+        } else {
+            $this->renderTable($filtered, $baselinedCount, $ignoredCount);
+        }
 
         return $this->exitCode($filtered);
     }

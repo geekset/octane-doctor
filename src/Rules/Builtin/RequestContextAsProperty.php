@@ -41,20 +41,20 @@ use PhpParser\NodeVisitorAbstract;
 class RequestContextAsProperty implements Rule
 {
     /**
-     * Type names whose instances are request scoped. Both the short
-     * basename and the fully qualified FQCN are listed because user
-     * code uses both forms depending on imports.
+     * Type names whose instances are request scoped. Deliberately
+     * narrow. AuthManager, the auth Factory, and the Router are
+     * long-lived managers that Octane keeps consistent across
+     * requests via prepareApplicationForNextOperation, so caching
+     * them on a long-lived service is not the same risk as caching
+     * the resolved Guard or the currently matched Route.
      *
      * @var array<int, string>
      */
     protected const REQUEST_SCOPED_TYPES = [
         'Illuminate\\Http\\Request',
-        'Illuminate\\Auth\\AuthManager',
         'Illuminate\\Contracts\\Auth\\Guard',
         'Illuminate\\Contracts\\Auth\\StatefulGuard',
-        'Illuminate\\Contracts\\Auth\\Factory',
         'Illuminate\\Routing\\Route',
-        'Illuminate\\Routing\\Router',
         'Illuminate\\Session\\Store',
         'Illuminate\\Contracts\\Session\\Session',
     ];

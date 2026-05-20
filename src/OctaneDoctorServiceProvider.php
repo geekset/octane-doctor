@@ -22,6 +22,54 @@ class OctaneDoctorServiceProvider extends PackageServiceProvider
             ->hasCommand(ExplainCommand::class);
     }
 
+    public function packageBooted(): void
+    {
+        /*
+         * Pre-boot warning routing: when the host invokes the scan
+         * command with --format=json, the JSON payload is the only
+         * thing that should land on STDOUT. Laravel boot runs before
+         * our command handle() is reached, so any deprecations fired
+         * while loading host config files would otherwise corrupt the
+         * JSON. Redirecting display_errors to STDERR at provider boot
+         * time keeps the JSON parseable for CI consumers.
+         */
+        if ($this->commandLineRequestsJson()) {
+            ini_set('display_errors', 'stderr');
+        }
+    }
+
+    protected function commandLineRequestsJson(): bool
+    {
+        if (PHP_SAPI !== 'cli') {
+            return false;
+        }
+
+        $argv = $_SERVER['argv'] ?? [];
+
+        if (! is_array($argv)) {
+            return false;
+        }
+
+        $hasCommand = false;
+        $hasJsonFormat = false;
+
+        foreach ($argv as $argument) {
+            if (! is_string($argument)) {
+                continue;
+            }
+
+            if ($argument === 'octane-doctor:scan') {
+                $hasCommand = true;
+            }
+
+            if ($argument === '--format=json' || $argument === '--format json') {
+                $hasJsonFormat = true;
+            }
+        }
+
+        return $hasCommand && $hasJsonFormat;
+    }
+
     public function packageRegistered(): void
     {
         /*
