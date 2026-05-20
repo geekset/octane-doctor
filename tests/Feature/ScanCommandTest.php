@@ -303,6 +303,30 @@ it('emits an empty warnings array in JSON when every configured path exists', fu
     expect($payload['warnings'])->toBe([]);
 });
 
+it('runs only the rule passed via --rule', function () {
+    CommandFixtureRule::$severity = Severity::High;
+    config()->set('octane-doctor.rules', [CommandFixtureRule::class, EmptyFixtureRule::class]);
+    config()->set('octane-doctor.paths', []);
+    config()->set('octane-doctor.fail_on', 'never');
+
+    Artisan::call('octane-doctor:scan', ['--rule' => 'fixture-rule', '--format' => 'json']);
+    $payload = json_decode(trim(Artisan::output()), true);
+
+    expect($payload['findings'])->toHaveCount(1)
+        ->and($payload['findings'][0]['rule_id'])->toBe('fixture-rule');
+});
+
+it('fails when --rule references an unknown rule id', function () {
+    config()->set('octane-doctor.rules', [CommandFixtureRule::class]);
+    config()->set('octane-doctor.paths', []);
+    config()->set('octane-doctor.fail_on', 'never');
+
+    $this->artisan('octane-doctor:scan', ['--rule' => 'does-not-exist'])
+        ->expectsOutputToContain("No rule registered with id 'does-not-exist'.")
+        ->expectsOutputToContain('Run octane-doctor:rules:list')
+        ->assertExitCode(1);
+});
+
 it('reports baseline and ignore counts separately in JSON output', function () {
     CommandFixtureRule::$severity = Severity::High;
     config()->set('octane-doctor.rules', [CommandFixtureRule::class]);

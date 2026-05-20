@@ -4,7 +4,8 @@ namespace OctaneDoctor;
 
 use Illuminate\Contracts\Foundation\Application;
 use OctaneDoctor\Commands\BaselineCommand;
-use OctaneDoctor\Commands\ExplainCommand;
+use OctaneDoctor\Commands\RulesListCommand;
+use OctaneDoctor\Commands\RulesViewCommand;
 use OctaneDoctor\Commands\ScanCommand;
 use OctaneDoctor\Scanning\RuleRegistry;
 use Spatie\LaravelPackageTools\Package;
@@ -19,7 +20,8 @@ class OctaneDoctorServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasCommand(ScanCommand::class)
             ->hasCommand(BaselineCommand::class)
-            ->hasCommand(ExplainCommand::class);
+            ->hasCommand(RulesListCommand::class)
+            ->hasCommand(RulesViewCommand::class);
     }
 
     public function packageBooted(): void
