@@ -120,6 +120,19 @@ class SuspiciousSingletonName implements Rule
                 continue;
             }
 
+            $filePath = $this->resolveFilePath($concreteClass);
+
+            /*
+             * Respect the user's configured scan paths. A heuristic
+             * rule that flagged vendor classes by name would erode
+             * trust quickly; if the binding's concrete class cannot
+             * be located on disk we cannot prove it belongs to user
+             * code and skip it.
+             */
+            if (! $context->isPathInScope($filePath)) {
+                continue;
+            }
+
             yield new Finding(
                 ruleId: $this->id(),
                 title: $this->title(),
@@ -128,7 +141,7 @@ class SuspiciousSingletonName implements Rule
                 summary: "Singleton {$abstract} is named like request-scoped state (matched '{$matched}').",
                 whyItMatters: 'Class names that include CurrentUser, TenantContext, or RequestState almost always hold the value for "the request right now". Binding such a class as a singleton means it keeps the value the worker captured first and never refreshes it.',
                 remediation: 'If the class genuinely represents per-request state, switch the binding to scoped() so a fresh instance is built each request. If the class is misnamed and is actually long-lived, rename it so the next reader is not misled.',
-                filePath: $this->resolveFilePath($concreteClass),
+                filePath: $filePath,
                 line: null,
                 symbol: $concreteClass ?? $abstract,
             );

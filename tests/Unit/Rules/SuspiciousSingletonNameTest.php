@@ -9,12 +9,12 @@ use OctaneDoctor\Tests\Fixtures\SuspiciousSingleton\BenignCacheService;
 use OctaneDoctor\Tests\Fixtures\SuspiciousSingleton\CurrentUser;
 use OctaneDoctor\Tests\Fixtures\SuspiciousSingleton\TenantContext;
 
-function runSuspiciousSingletonNameRule(): array
+function runSuspiciousSingletonNameRule(array $paths = []): array
 {
     $rule = new SuspiciousSingletonName;
 
     return iterator_to_array(
-        $rule->run(new ScanContext(app(), [])),
+        $rule->run(new ScanContext(app(), $paths)),
         false,
     );
 }
@@ -74,6 +74,19 @@ it('skips singletons bound under trusted vendor namespaces', function () {
     $matches = collect($findings)->filter(
         fn (Finding $f) => str_starts_with($f->symbol ?? '', 'Illuminate\\')
             || str_starts_with($f->symbol ?? '', 'Symfony\\')
+    );
+
+    expect($matches)->toBeEmpty();
+});
+
+it('skips suspiciously named singletons whose class file is outside the scanned paths', function () {
+    app()->singleton(CurrentUser::class);
+
+    $appPath = __DIR__.'/../../../app';
+    $findings = runSuspiciousSingletonNameRule([$appPath]);
+
+    $matches = collect($findings)->filter(
+        fn (Finding $f) => str_contains($f->summary, CurrentUser::class)
     );
 
     expect($matches)->toBeEmpty();

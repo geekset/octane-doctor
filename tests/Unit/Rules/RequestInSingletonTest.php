@@ -10,12 +10,12 @@ use OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsCache;
 use OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsGuard;
 use OctaneDoctor\Tests\Fixtures\RequestInSingleton\AcceptsRequest;
 
-function runRequestInSingletonRule(): array
+function runRequestInSingletonRule(array $paths = []): array
 {
     $rule = new RequestInSingleton;
 
     return iterator_to_array(
-        $rule->run(new ScanContext(app(), [])),
+        $rule->run(new ScanContext(app(), $paths)),
         false,
     );
 }
@@ -91,6 +91,32 @@ it('skips singletons bound under trusted vendor namespaces', function () {
     );
 
     expect($matches)->toBeEmpty();
+});
+
+it('skips singletons whose concrete file is outside the scanned paths', function () {
+    app()->singleton(AcceptsRequest::class);
+
+    $appPath = __DIR__.'/../../../app';
+    $findings = runRequestInSingletonRule([$appPath]);
+
+    $matches = collect($findings)->filter(
+        fn (Finding $f) => str_contains($f->summary, AcceptsRequest::class)
+    );
+
+    expect($matches)->toBeEmpty();
+});
+
+it('includes singletons whose concrete file sits inside the scanned paths', function () {
+    app()->singleton(AcceptsRequest::class);
+
+    $fixturesPath = dirname((new ReflectionClass(AcceptsRequest::class))->getFileName());
+    $findings = runRequestInSingletonRule([$fixturesPath]);
+
+    $matches = collect($findings)->filter(
+        fn (Finding $f) => str_contains($f->summary, AcceptsRequest::class)
+    );
+
+    expect($matches)->not->toBeEmpty();
 });
 
 it('produces findings with the expected metadata', function () {
