@@ -7,7 +7,7 @@ use OctaneDoctor\Ast\ParsedFile;
 use OctaneDoctor\Enums\Category;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
-use OctaneDoctor\Rules\Rule;
+use OctaneDoctor\Rules\AstVisitingRule;
 use OctaneDoctor\Rules\RuleExplanation;
 use OctaneDoctor\Scanning\ScanContext;
 use PhpParser\Node;
@@ -15,6 +15,7 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\Trait_;
 use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitorAbstract;
 
@@ -25,7 +26,7 @@ use PhpParser\NodeVisitorAbstract;
  * primed at boot). This rule reports the declaration site; a richer
  * check that traces writes is a deferred follow-up.
  */
-class MutableStaticState implements Rule
+class MutableStaticState implements AstVisitingRule
 {
     /**
      * Static property overrides on framework base classes that are
@@ -129,19 +130,20 @@ class MutableStaticState implements Rule
     public function run(ScanContext $context): iterable
     {
         foreach ($this->walker->walk($context->paths) as $parsed) {
-            yield from $this->inspect($parsed);
+            $visitor = $this->buildVisitor($parsed);
+            $traverser = new NodeTraverser(new NameResolver, $visitor);
+            $traverser->traverse($parsed->ast);
+
+            yield from $this->findingsFor($parsed, $visitor);
         }
     }
 
-    /**
-     * @return iterable<Finding>
-     */
-    protected function inspect(ParsedFile $parsed): iterable
+    public function buildVisitor(ParsedFile $parsed): NodeVisitor
     {
         $safeOverrides = self::SAFE_PARENT_OVERRIDES;
         $safePrefixes = self::SAFE_PROPS_BY_PARENT_NAMESPACE_PREFIX;
 
-        $visitor = new class($safeOverrides, $safePrefixes) extends NodeVisitorAbstract
+        return new class($safeOverrides, $safePrefixes) extends NodeVisitorAbstract
         {
             /** @var array<int, array{className: string, propertyName: string, line: int}> */
             public array $hits = [];
@@ -222,11 +224,14 @@ class MutableStaticState implements Rule
                 return false;
             }
         };
+    }
 
-        $traverser = new NodeTraverser(new NameResolver, $visitor);
-        $traverser->traverse($parsed->ast);
+    public function findingsFor(ParsedFile $parsed, NodeVisitor $visitor): iterable
+    {
+        /** @var array<int, array{className: string, propertyName: string, line: int}> $hits */
+        $hits = property_exists($visitor, 'hits') ? $visitor->hits : [];
 
-        foreach ($visitor->hits as $hit) {
+        foreach ($hits as $hit) {
             yield new Finding(
                 ruleId: $this->id(),
                 title: $this->title(),

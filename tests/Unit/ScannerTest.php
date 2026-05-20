@@ -1,12 +1,16 @@
 <?php
 
+use OctaneDoctor\Ast\FileWalker;
 use OctaneDoctor\Enums\Category;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Builtin\MutableStaticState;
+use OctaneDoctor\Rules\Builtin\RiskyHelpersInConstructor;
 use OctaneDoctor\Rules\Rule;
 use OctaneDoctor\Rules\RuleExplanation;
 use OctaneDoctor\Scanning\ScanContext;
 use OctaneDoctor\Scanning\Scanner;
+use OctaneDoctor\Tests\Support\CountingFileWalker;
 
 function octaneDoctorFinding(string $ruleId, Severity $severity, ?int $line = null): Finding
 {
@@ -96,4 +100,31 @@ it('returns an empty result when no rules are registered', function () {
 
     expect($result->count())->toBe(0)
         ->and($result->durationMs)->toBeGreaterThanOrEqual(0.0);
+});
+
+it('walks each file once even when multiple AST rules are registered', function () {
+    $tmp = sys_get_temp_dir().'/octane-doctor-walker-'.bin2hex(random_bytes(4));
+    mkdir($tmp, 0o755, true);
+    file_put_contents($tmp.'/Foo.php', "<?php\nclass Foo { public static array \$cache = []; }\n");
+    file_put_contents($tmp.'/Bar.php', "<?php\nclass Bar { public static array \$cache = []; }\n");
+
+    try {
+        $walker = new CountingFileWalker;
+
+        $rules = [
+            new MutableStaticState(new FileWalker),
+            new RiskyHelpersInConstructor(new FileWalker),
+        ];
+
+        $result = (new Scanner($rules, $walker))->scan(new ScanContext(app(), [$tmp]));
+
+        // Two AST rules, two files: only one walk should have happened.
+        expect($walker->walkCalls)->toBe(1)
+            ->and($walker->yieldedFiles)->toBe(2)
+            ->and($result->count())->toBeGreaterThanOrEqual(2);
+    } finally {
+        @unlink($tmp.'/Foo.php');
+        @unlink($tmp.'/Bar.php');
+        @rmdir($tmp);
+    }
 });
