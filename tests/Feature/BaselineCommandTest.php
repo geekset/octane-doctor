@@ -161,6 +161,18 @@ it('still fails on new findings introduced after the baseline was taken', functi
         ->and($output)->toContain('second finding');
 });
 
+it('warns when a configured scan path does not exist but still records the baseline', function () {
+    config()->set('octane-doctor.rules', [BaselineFixtureRule::class]);
+    config()->set('octane-doctor.paths', ['/definitely/does/not/exist']);
+
+    $exit = Artisan::call('octane-doctor:baseline');
+    $output = Artisan::output();
+
+    expect($exit)->toBe(0)
+        ->and($output)->toContain('WARNING: configured scan path does not exist: /definitely/does/not/exist')
+        ->and(is_file($this->baselinePath))->toBeTrue();
+});
+
 it('--no-baseline ignores the baseline file', function () {
     config()->set('octane-doctor.rules', [BaselineFixtureRule::class]);
     config()->set('octane-doctor.fail_on', 'high');
