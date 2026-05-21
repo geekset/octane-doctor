@@ -63,7 +63,7 @@ What the developer sees in the terminal:
 
 ```text
    HIGH  request-context-as-property Request-scoped object stored as a class property
-    at app/Services/ReportService.php:10
+    at app/Services/ReportService.php:5
     Class App\Services\ReportService stores Illuminate\Http\Request on property $request.
     Why: Under Octane the same object instance is reused across requests. A property
          holding the current Request, auth guard, route, or session freezes to the
@@ -73,7 +73,7 @@ What the developer sees in the terminal:
          instance is built per request.
 
    MEDIUM  mutable-static-state Mutable static state
-    at app/Services/UserCache.php:7
+    at app/Services/UserCache.php:5
     Class App\Services\UserCache declares mutable static property $cache.
     Why: Static class properties persist across requests under Octane workers. Any
          mutation written during one request stays visible to every subsequent
@@ -130,19 +130,24 @@ The JSON document is schema versioned and stable across point releases:
         "total": 2,
         "by_severity": { "high": 1, "medium": 1, "low": 0, "info": 0 },
         "by_category": { "static-state": 1, "singleton-safety": 1 },
-        "scanned_paths": ["/var/www/app"],
+        "scanned_paths": ["app", "config"],
         "duration_ms": 312.5,
-        "baselined": 0
+        "baselined": 0,
+        "ignored": 0
     },
+    "warnings": [],
     "findings": [
         {
             "rule_id": "request-in-singleton",
             "severity": "high",
+            "file_path": "app/Services/ReportService.php",
             "fingerprint": "..."
         }
     ]
 }
 ```
+
+File paths in the JSON output are relative to the application's base path so a baseline produced on a developer machine matches the one CI produces. The `warnings` array is empty on a healthy run and lists structured `{code, message, path}` entries when something is off, for example a configured scan path that no longer exists.
 
 ### Severity threshold
 
@@ -179,21 +184,31 @@ Pass `--no-baseline` to ignore the baseline for an audit run:
 php artisan octane-doctor:scan --no-baseline
 ```
 
-## Explaining a rule
+## Inspecting rules
 
-Each finding is short on purpose. When you want the full picture for a rule, ask for it by id:
+List every registered rule (built in plus anything in `custom_rules`):
 
 ```bash
-php artisan octane-doctor:explain request-in-singleton
+php artisan octane-doctor:rules:list
+```
+
+The output is a terse table of id, severity, category, and title. Pass `--format=json` for a stable machine-readable shape that fits into a CI annotation step.
+
+When you want the full picture for one rule, look it up by id:
+
+```bash
+php artisan octane-doctor:rules:view request-in-singleton
 ```
 
 Output covers the title, severity, category, why it matters, remediation, and concrete examples that show a flagged form versus a safe form of the pattern.
 
-Run the command without an argument to see every registered rule (built in plus custom):
+For tight iteration on a single rule, scope a scan to that rule alone:
 
 ```bash
-php artisan octane-doctor:explain
+php artisan octane-doctor:scan --rule=request-in-singleton
 ```
+
+`--rule` exits non-zero with a hint to `rules:list` when the id is unknown, so an out of date CI invocation fails loudly instead of silently scanning nothing.
 
 ## Configuration
 
@@ -253,11 +268,14 @@ Each rule contains a per dispatch and per request safe list so events, mailables
 
 ## Custom rules
 
-Implement `OctaneDoctor\Rules\Rule` and register the class in `octane-doctor.custom_rules`:
+Custom rules cover patterns the shipped rule set cannot know about, for example a project-specific tenant context wrapper or a base class your team treats as long-lived. Implement `OctaneDoctor\Rules\Rule` and register the class in `octane-doctor.custom_rules`.
+
+The example below flags any singleton binding to `App\Tenancy\TenantContext` because the team that wrote it decided the class is always per-request. It walks the host application's container bindings, so the rule does not need to parse files.
 
 ```php
 namespace App\Octane\Rules;
 
+use App\Tenancy\TenantContext;
 use OctaneDoctor\Enums\Category;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
@@ -265,7 +283,7 @@ use OctaneDoctor\Rules\Rule;
 use OctaneDoctor\Rules\RuleExplanation;
 use OctaneDoctor\Scanning\ScanContext;
 
-class ForbidTenantContext implements Rule
+class ForbidTenantContextSingleton implements Rule
 {
     public function id(): string
     {
@@ -290,7 +308,7 @@ class ForbidTenantContext implements Rule
     public function explanation(): RuleExplanation
     {
         return new RuleExplanation(
-            whyItMatters: 'TenantContext holds the current tenant for one request only.',
+            whyItMatters: 'TenantContext holds the current tenant for one request only. A singleton binding keeps the first request\'s tenant in place for every later request the worker handles.',
             remediation: 'Bind it with scoped() so each request gets its own instance.',
             examples: [
                 '$this->app->singleton(TenantContext::class); // flagged',
@@ -301,20 +319,38 @@ class ForbidTenantContext implements Rule
 
     public function run(ScanContext $context): iterable
     {
-        // Walk $context->paths or inspect $context->app->getBindings()
-        // and yield Finding instances.
+        $binding = $context->app->getBindings()[TenantContext::class] ?? null;
+
+        if ($binding === null || ($binding['shared'] ?? false) !== true) {
+            return;
+        }
+
+        yield new Finding(
+            ruleId: $this->id(),
+            title: $this->title(),
+            severity: $this->severity(),
+            category: $this->category(),
+            summary: TenantContext::class.' is bound as a singleton.',
+            whyItMatters: $this->explanation()->whyItMatters,
+            remediation: $this->explanation()->remediation,
+            symbol: TenantContext::class,
+        );
     }
 }
 ```
 
+Register the rule in config:
+
 ```php
 // config/octane-doctor.php
 'custom_rules' => [
-    App\Octane\Rules\ForbidTenantContext::class,
+    App\Octane\Rules\ForbidTenantContextSingleton::class,
 ],
 ```
 
-Findings emitted by custom rules use the same shape, fingerprint, and CLI output as the built in rules.
+Custom findings flow through the same fingerprint, baseline, ignore list, sorting, and CLI/JSON output as the built in rules.
+
+For rules that inspect source code instead of container bindings, implement `OctaneDoctor\Rules\AstVisitingRule` instead. The Scanner walks every configured path once and runs every AST rule's visitor inside a single `NodeTraverser` pass, so the rule count does not multiply file IO. Build your visitor in `buildVisitor()` and drain accumulated state into findings inside `findingsFor()`. The shipped `MutableStaticState` rule is a worked example.
 
 ## CI usage
 
@@ -328,9 +364,15 @@ The minimum viable CI step is one command:
 
 For staged rollouts, capture the baseline, commit it to the repo, then have CI run the same `octane-doctor:scan` command. Anything new becomes a failing build. Anything already baselined stays quiet.
 
-## Auto fix policy
+## Known limitations
 
-There is no automated fix in this release. Every finding contains a remediation hint instead. This is intentional: getting the findings right is a prerequisite for trusting an automatic rewrite, and an early auto fix would damage that trust on the first false positive.
+The scanner is conservative by design. A few caveats worth knowing about up front:
+
+* **Heuristic, not a proof.** Rules detect patterns that tend to break under Octane, not patterns that always do. A passing scan is a useful signal, not a certificate. Pair it with load testing and the official Octane documentation before declaring an application Octane-safe.
+* **No automated fixes.** Every finding ships with a remediation hint. There is no `--fix` flag and no plan for one until the scanner has earned more trust on a wider variety of codebases. Getting the findings right is a prerequisite for trusting an automatic rewrite, and an early auto fix would damage that trust on the first false positive.
+* **No deep package compatibility audit.** The scanner does not maintain a database of "package X is or is not Octane-safe". It walks bindings from your application's container at scan time and reports patterns, regardless of which package registered them.
+* **Source paths are filtered, container paths are too.** Configured scan paths apply to AST-based rules (the file walkers) and to container-walking rules (`request-in-singleton`, `suspicious-singleton-name`) alike. A binding whose concrete class lives outside every configured path is skipped, so a scope of `app/` will not report on vendor classes.
+* **PHP 8.1 is not supported.** The package relies on `readonly` classes throughout its value objects. See the [Supported versions](#supported-versions) section for the full matrix.
 
 ## Development
 

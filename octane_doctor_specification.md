@@ -171,7 +171,7 @@ Needs a clean rule API and a predictable testing surface.
 A team installs the package and runs:
 
 ```bash
-php artisan octane-guard:scan
+php artisan octane-doctor:scan
 ```
 
 Expected result:
@@ -187,7 +187,7 @@ Expected result:
 A team runs:
 
 ```bash
-php artisan octane-guard:fix --safe
+php artisan octane-doctor:fix --safe
 ```
 
 Expected result:
@@ -434,26 +434,37 @@ Purpose: create a baseline for gradual adoption.
 - snapshot current findings
 - allow future runs to fail only on new findings if configured
 
-### 12.3 `octane-doctor:baseline`
+### 12.3 `octane-doctor:rules:list`
 
-Purpose: create a baseline for gradual adoption.
+Purpose: list every registered rule so a developer can see what the scanner is checking and find the id to pass to `rules:view` or `scan --rule`.
 
 #### Required behaviour
 
-- snapshot current findings
-- allow future runs to fail only on new findings if configured
-
-### 12.4 `octane-doctor:explain`
-
-Purpose: explain a rule or finding in more detail.
+- print a table of id, severity, category, and title
+- support `--format=json` for machine-readable consumption
+- include both built-in and custom rules
 
 #### Example
 
 ```bash
-php artisan octane-doctor:explain request-in-singleton
+php artisan octane-doctor:rules:list
 ```
 
-This is optional for MVP but desirable.
+### 12.4 `octane-doctor:rules:view`
+
+Purpose: show the full description, remediation guidance, and examples for one rule.
+
+#### Required behaviour
+
+- accept a rule id as the only argument
+- fail with a non-zero exit code and a `rules:list` hint when the id is unknown
+- print title, severity, category, why-it-matters, remediation, examples, and docs URL
+
+#### Example
+
+```bash
+php artisan octane-doctor:rules:view request-in-singleton
+```
 
 ---
 
