@@ -60,7 +60,7 @@ class OctaneDoctorServiceProvider extends PackageServiceProvider
                 continue;
             }
 
-            if ($argument === 'octane-doctor:scan') {
+            if (str_starts_with($argument, 'octane-doctor:')) {
                 $hasCommand = true;
             }
 

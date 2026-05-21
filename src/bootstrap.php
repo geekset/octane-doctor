@@ -1,9 +1,10 @@
 <?php
 
 /*
- * Early STDERR redirect for `octane-doctor:scan --format=json`.
+ * Early STDERR redirect for any `octane-doctor:*` command invoked
+ * with `--format=json`.
  *
- * When the user pipes the JSON payload into `jq` or any CI tool,
+ * When the user pipes a JSON payload into `jq` or any CI tool,
  * anything PHP writes to STDOUT before the JSON document corrupts
  * the pipeline. Host applications routinely trigger deprecation
  * notices while loading their own config files (passport.php is a
@@ -15,8 +16,9 @@
  * Composer's `autoload.files` directive is the earliest hook the
  * package controls: it runs the moment vendor/autoload.php is
  * required, which happens before Laravel parses any host config.
- * Redirecting at that point keeps the JSON payload clean without
- * touching anything else on non-scan invocations.
+ * Redirecting at that point keeps the JSON payload clean for every
+ * `octane-doctor:*` command without touching anything else on
+ * non-machine-readable invocations.
  */
 
 if (PHP_SAPI !== 'cli') {
@@ -29,7 +31,7 @@ if (! is_array($argv)) {
     return;
 }
 
-$hasScanCommand = false;
+$hasOctaneDoctorCommand = false;
 $hasJsonFormat = false;
 
 foreach ($argv as $index => $argument) {
@@ -37,8 +39,8 @@ foreach ($argv as $index => $argument) {
         continue;
     }
 
-    if ($argument === 'octane-doctor:scan') {
-        $hasScanCommand = true;
+    if (str_starts_with($argument, 'octane-doctor:')) {
+        $hasOctaneDoctorCommand = true;
 
         continue;
     }
@@ -54,6 +56,6 @@ foreach ($argv as $index => $argument) {
     }
 }
 
-if ($hasScanCommand && $hasJsonFormat) {
+if ($hasOctaneDoctorCommand && $hasJsonFormat) {
     ini_set('display_errors', 'stderr');
 }
