@@ -9,6 +9,7 @@ use OctaneDoctor\Baseline\BaselineRepository;
 use OctaneDoctor\Commands\Concerns\ResolvesScanPaths;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
+use OctaneDoctor\Rules\Rule;
 use OctaneDoctor\Scanning\RuleRegistry;
 use OctaneDoctor\Scanning\ScanContext;
 use OctaneDoctor\Scanning\Scanner;
@@ -31,7 +32,8 @@ class ScanCommand extends Command
     public $signature = 'octane-doctor:scan
         {--fail-on= : Lowest severity that should fail the run (high, medium, low, info)}
         {--format= : Output format (table, json)}
-        {--no-baseline : Ignore the baseline file even if it is configured}';
+        {--no-baseline : Ignore the baseline file even if it is configured}
+        {--rule= : Run only the rule with the given id (see octane-doctor:rules:list)}';
 
     public $description = 'Scan the application for Laravel Octane readiness risks.';
 
@@ -52,9 +54,15 @@ class ScanCommand extends Command
 
         $pathInfo = $this->resolvePathInfo();
 
+        $rules = $this->resolveRules($registry);
+
+        if ($rules === null) {
+            return self::FAILURE;
+        }
+
         $context = new ScanContext($app, $pathInfo['resolved'], $app->basePath());
 
-        $scanner = new Scanner($registry->all());
+        $scanner = new Scanner($rules);
 
         $rawResult = $scanner->scan($context);
 
@@ -86,6 +94,35 @@ class ScanCommand extends Command
         $configured = $this->option('format') ?? config('octane-doctor.output', 'table');
 
         return in_array($configured, ['table', 'json'], true) ? $configured : 'table';
+    }
+
+    /**
+     * Resolve which rules to run. Returns null when the user asked
+     * for a rule id that does not exist; the caller exits cleanly
+     * with a non-zero status so the failure is visible in CI.
+     *
+     * @return array<int, Rule>|null
+     */
+    protected function resolveRules(RuleRegistry $registry): ?array
+    {
+        $rules = $registry->all();
+
+        $ruleId = $this->option('rule');
+
+        if (! is_string($ruleId) || $ruleId === '') {
+            return $rules;
+        }
+
+        foreach ($rules as $rule) {
+            if ($rule->id() === $ruleId) {
+                return [$rule];
+            }
+        }
+
+        $this->error("No rule registered with id '{$ruleId}'.");
+        $this->line('Run octane-doctor:rules:list to see every registered rule.');
+
+        return null;
     }
 
     protected function loadBaseline(BaselineRepository $repository): Baseline
