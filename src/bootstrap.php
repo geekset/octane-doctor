@@ -39,11 +39,13 @@ foreach ($argv as $index => $argument) {
 
     if ($argument === 'octane-doctor:scan') {
         $hasScanCommand = true;
+
         continue;
     }
 
     if ($argument === '--format=json') {
         $hasJsonFormat = true;
+
         continue;
     }
 
