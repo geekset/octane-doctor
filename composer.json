@@ -45,7 +45,10 @@
     "autoload": {
         "psr-4": {
             "OctaneDoctor\\": "src/"
-        }
+        },
+        "files": [
+            "src/bootstrap.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
