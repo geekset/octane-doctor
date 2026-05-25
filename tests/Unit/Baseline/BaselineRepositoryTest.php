@@ -3,6 +3,7 @@
 use OctaneDoctor\Baseline\Baseline;
 use OctaneDoctor\Baseline\BaselineRepository;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 
@@ -23,6 +24,7 @@ function makeBaselineFinding(string $summary): Finding
         title: 'test',
         severity: Severity::Medium,
         category: Category::UnknownRisk,
+        riskClass: RiskClass::DataLeak,
         summary: $summary,
         whyItMatters: 'why',
         remediation: 'fix',

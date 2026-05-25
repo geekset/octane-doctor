@@ -332,6 +332,7 @@ class ScanCommand extends Command
                 'total' => $result->count(),
                 'by_severity' => $result->countBySeverity(),
                 'by_category' => $result->countByCategory(),
+                'by_risk_class' => $result->countByRiskClass(),
                 'scanned_paths' => $result->scannedPaths,
                 'duration_ms' => round($result->durationMs, 3),
                 'baselined' => $baselinedCount,

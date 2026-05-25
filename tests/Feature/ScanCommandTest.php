@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Artisan;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Rule;
@@ -32,6 +33,11 @@ class CommandFixtureRule implements Rule
         return Category::StaticState;
     }
 
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
+    }
+
     public function explanation(): RuleExplanation
     {
         return new RuleExplanation(whyItMatters: 'fixture', remediation: 'fixture');
@@ -44,6 +50,7 @@ class CommandFixtureRule implements Rule
             title: 'Fixture finding',
             severity: static::$severity,
             category: Category::StaticState,
+            riskClass: RiskClass::DataLeak,
             summary: 'Detected a fixture risk.',
             whyItMatters: 'It explains the danger.',
             remediation: 'It explains the fix.',
@@ -73,6 +80,11 @@ class EmptyFixtureRule implements Rule
     public function category(): Category
     {
         return Category::UnknownRisk;
+    }
+
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
     }
 
     public function explanation(): RuleExplanation
@@ -201,6 +213,7 @@ it('suppresses findings whose fingerprint is listed in octane-doctor.ignore', fu
         title: 'Fixture finding',
         severity: Severity::High,
         category: Category::StaticState,
+        riskClass: RiskClass::DataLeak,
         summary: 'Detected a fixture risk.',
         whyItMatters: 'It explains the danger.',
         remediation: 'It explains the fix.',
@@ -237,6 +250,11 @@ class NoisyFixtureRule implements Rule
     public function category(): Category
     {
         return Category::UnknownRisk;
+    }
+
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
     }
 
     public function explanation(): RuleExplanation

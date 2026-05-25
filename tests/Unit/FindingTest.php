@@ -1,6 +1,7 @@
 <?php
 
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 
@@ -10,6 +11,7 @@ it('exposes its data through toArray', function () {
         title: 'Mutable static state',
         severity: Severity::High,
         category: Category::StaticState,
+        riskClass: RiskClass::DataLeak,
         summary: 'Class Foo has a mutable static property.',
         whyItMatters: 'Static state persists across requests under Octane.',
         remediation: 'Use instance state or a request-scoped binding.',
@@ -23,6 +25,7 @@ it('exposes its data through toArray', function () {
             'rule_id' => 'static-state',
             'severity' => 'high',
             'category' => 'static-state',
+            'risk_class' => 'data-leak',
             'file_path' => '/app/Foo.php',
             'line' => 12,
             'symbol' => 'Foo::$cache',
@@ -39,6 +42,7 @@ it('relativizes the file path when the base path is a prefix', function () {
         title: 'Mutable static state',
         severity: Severity::High,
         category: Category::StaticState,
+        riskClass: RiskClass::DataLeak,
         summary: 'summary',
         whyItMatters: 'why',
         remediation: 'fix',
@@ -56,6 +60,7 @@ it('leaves the file path untouched when outside the base path', function () {
         title: 'Mutable static state',
         severity: Severity::High,
         category: Category::StaticState,
+        riskClass: RiskClass::DataLeak,
         summary: 'summary',
         whyItMatters: 'why',
         remediation: 'fix',
@@ -73,6 +78,7 @@ it('produces the same fingerprint across machines once paths are relativized', f
         title: 'Mutable static state',
         severity: Severity::High,
         category: Category::StaticState,
+        riskClass: RiskClass::DataLeak,
         summary: 'Class App\\Foo declares mutable static property $cache.',
         whyItMatters: 'why',
         remediation: 'fix',
@@ -91,6 +97,7 @@ it('produces a deterministic fingerprint for the same input', function () {
         'title' => 'A',
         'severity' => Severity::Medium,
         'category' => Category::SingletonSafety,
+        'riskClass' => RiskClass::DataLeak,
         'summary' => 'something',
         'whyItMatters' => 'because',
         'remediation' => 'do this',
@@ -108,6 +115,7 @@ it('produces different fingerprints when the summary changes', function () {
         'title' => 'A',
         'severity' => Severity::Medium,
         'category' => Category::SingletonSafety,
+        'riskClass' => RiskClass::DataLeak,
         'whyItMatters' => 'because',
         'remediation' => 'do this',
         'filePath' => '/app/X.php',

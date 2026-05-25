@@ -2,6 +2,7 @@
 
 use OctaneDoctor\Ast\FileWalker;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Builtin\MutableStaticState;
@@ -19,6 +20,7 @@ function octaneDoctorFinding(string $ruleId, Severity $severity, ?int $line = nu
         title: 'fixture',
         severity: $severity,
         category: Category::UnknownRisk,
+        riskClass: RiskClass::DataLeak,
         summary: 'summary',
         whyItMatters: 'why',
         remediation: 'fix',
@@ -55,6 +57,11 @@ class FixtureRule implements Rule
     public function category(): Category
     {
         return Category::UnknownRisk;
+    }
+
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
     }
 
     public function explanation(): RuleExplanation

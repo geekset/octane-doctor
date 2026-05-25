@@ -2,6 +2,7 @@
 
 use OctaneDoctor\Ast\FileWalker;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Builtin\RiskyHelpersInConstructor;
@@ -114,6 +115,7 @@ it('produces findings with the expected metadata', function () {
         ->and($finding->ruleId)->toBe('risky-helpers-in-constructor')
         ->and($finding->severity)->toBe(Severity::Medium)
         ->and($finding->category)->toBe(Category::RequestState)
+        ->and($finding->riskClass)->toBe(RiskClass::DataLeak)
         ->and($finding->symbol)->toEndWith('::__construct')
         ->and($finding->line)->toBeGreaterThan(0);
 });

@@ -1,6 +1,7 @@
 <?php
 
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Scanning\ScanResult;
@@ -12,6 +13,7 @@ function makeFinding(Severity $severity): Finding
         title: 't',
         severity: $severity,
         category: Category::UnknownRisk,
+        riskClass: RiskClass::DataLeak,
         summary: 's',
         whyItMatters: 'w',
         remediation: 'r',

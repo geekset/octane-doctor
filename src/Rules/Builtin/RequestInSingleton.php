@@ -4,6 +4,7 @@ namespace OctaneDoctor\Rules\Builtin;
 
 use Illuminate\Contracts\Container\Container;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Rule;
@@ -88,6 +89,11 @@ class RequestInSingleton implements Rule
         return Category::SingletonSafety;
     }
 
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
+    }
+
     public function explanation(): RuleExplanation
     {
         return new RuleExplanation(
@@ -165,6 +171,7 @@ class RequestInSingleton implements Rule
                 title: $this->title(),
                 severity: $this->severity(),
                 category: $this->category(),
+                riskClass: $this->riskClass(),
                 summary: "Singleton {$abstract} resolves {$concreteClass} whose constructor accepts {$matchedType}.",
                 whyItMatters: 'A singleton is built once per worker and reused across requests under Octane. A constructor that accepts the current Request, auth Guard, Route, or Session freezes that instance to the request that triggered the first resolution.',
                 remediation: 'Either move the binding to scoped() so it is rebuilt per request, or stop injecting the request-scoped dependency through the constructor and resolve it inside the method that uses it.',

@@ -1,6 +1,7 @@
 <?php
 
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Rules\Rule;
 use OctaneDoctor\Rules\RuleExplanation;
@@ -28,6 +29,11 @@ class RulesViewFixtureRule implements Rule
         return Category::SingletonSafety;
     }
 
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
+    }
+
     public function explanation(): RuleExplanation
     {
         return new RuleExplanation(
@@ -53,6 +59,7 @@ it('shows the full explanation for the requested rule', function () {
         ->expectsOutputToContain('Title: Fixture view rule')
         ->expectsOutputToContain('Severity: high')
         ->expectsOutputToContain('Category: singleton-safety')
+        ->expectsOutputToContain('Risk class: data-leak')
         ->expectsOutputToContain('It captures stale state.')
         ->expectsOutputToContain('Switch to scoped().')
         ->expectsOutputToContain('$this->app->scoped(Foo::class);')

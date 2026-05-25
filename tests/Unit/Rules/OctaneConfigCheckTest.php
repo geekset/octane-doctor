@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\File;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Builtin\OctaneConfigCheck;
@@ -41,6 +42,7 @@ it('emits an Info finding when laravel/octane is not in composer.json', function
         ->and($findings[0])->toBeInstanceOf(Finding::class)
         ->and($findings[0]->severity)->toBe(Severity::Info)
         ->and($findings[0]->category)->toBe(Category::Configuration)
+        ->and($findings[0]->riskClass)->toBe(RiskClass::RequestScopeMisuse)
         ->and($findings[0]->title)->toBe('Laravel Octane is not installed');
 });
 

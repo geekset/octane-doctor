@@ -55,6 +55,20 @@ final readonly class ScanResult
         return $counts;
     }
 
+    /**
+     * @return array<string, int>
+     */
+    public function countByRiskClass(): array
+    {
+        $counts = [];
+
+        foreach ($this->findings as $finding) {
+            $counts[$finding->riskClass->value] = ($counts[$finding->riskClass->value] ?? 0) + 1;
+        }
+
+        return $counts;
+    }
+
     public function hasFindingAtOrAbove(Severity $threshold): bool
     {
         foreach ($this->findings as $finding) {

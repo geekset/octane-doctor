@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Artisan;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Rule;
@@ -30,6 +31,11 @@ class BaselineFixtureRule implements Rule
         return Category::StaticState;
     }
 
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
+    }
+
     public function explanation(): RuleExplanation
     {
         return new RuleExplanation(whyItMatters: 'fixture', remediation: 'fixture');
@@ -42,6 +48,7 @@ class BaselineFixtureRule implements Rule
             title: 'Baseline finding',
             severity: Severity::High,
             category: Category::StaticState,
+            riskClass: RiskClass::DataLeak,
             summary: 'first finding',
             whyItMatters: 'why',
             remediation: 'fix',
@@ -73,6 +80,11 @@ class BaselineFixtureRuleWithExtra implements Rule
         return Category::StaticState;
     }
 
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
+    }
+
     public function explanation(): RuleExplanation
     {
         return new RuleExplanation(whyItMatters: 'fixture', remediation: 'fixture');
@@ -85,6 +97,7 @@ class BaselineFixtureRuleWithExtra implements Rule
             title: 'Baseline finding',
             severity: Severity::High,
             category: Category::StaticState,
+            riskClass: RiskClass::DataLeak,
             summary: 'first finding',
             whyItMatters: 'why',
             remediation: 'fix',
@@ -97,6 +110,7 @@ class BaselineFixtureRuleWithExtra implements Rule
             title: 'Baseline finding',
             severity: Severity::High,
             category: Category::StaticState,
+            riskClass: RiskClass::DataLeak,
             summary: 'second finding',
             whyItMatters: 'why',
             remediation: 'fix',

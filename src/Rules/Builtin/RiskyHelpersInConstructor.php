@@ -5,6 +5,7 @@ namespace OctaneDoctor\Rules\Builtin;
 use OctaneDoctor\Ast\FileWalker;
 use OctaneDoctor\Ast\ParsedFile;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\AstVisitingRule;
@@ -118,6 +119,11 @@ class RiskyHelpersInConstructor implements AstVisitingRule
     public function category(): Category
     {
         return Category::RequestState;
+    }
+
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
     }
 
     public function explanation(): RuleExplanation
@@ -271,6 +277,7 @@ class RiskyHelpersInConstructor implements AstVisitingRule
                 title: $this->title(),
                 severity: $this->severity(),
                 category: $this->category(),
+                riskClass: $this->riskClass(),
                 summary: "Class {$hit['className']} calls {$hit['call']} from its constructor.",
                 whyItMatters: 'A constructor runs when the container resolves the service, not on every request. Values pulled from request(), auth(), or session() are captured at that moment and become stale for every subsequent request the same Octane worker handles.',
                 remediation: 'Move the call to a method that runs per request, accept the request-scoped value as a method parameter, or resolve it through a scoped() container binding.',

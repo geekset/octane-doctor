@@ -1,6 +1,7 @@
 <?php
 
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Suppression\IgnoreList;
@@ -12,6 +13,7 @@ function makeIgnoreFinding(string $ruleId, string $summary): Finding
         title: 't',
         severity: Severity::Medium,
         category: Category::UnknownRisk,
+        riskClass: RiskClass::DataLeak,
         summary: $summary,
         whyItMatters: 'w',
         remediation: 'r',

@@ -1,6 +1,7 @@
 <?php
 
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Builtin\SuspiciousSingletonName;
@@ -104,5 +105,6 @@ it('produces findings with the expected metadata', function () {
     expect($finding)->not->toBeNull()
         ->and($finding->ruleId)->toBe('suspicious-singleton-name')
         ->and($finding->severity)->toBe(Severity::Medium)
-        ->and($finding->category)->toBe(Category::SingletonSafety);
+        ->and($finding->category)->toBe(Category::SingletonSafety)
+        ->and($finding->riskClass)->toBe(RiskClass::DataLeak);
 });

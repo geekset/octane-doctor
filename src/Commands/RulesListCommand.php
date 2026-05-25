@@ -10,8 +10,9 @@ use OctaneDoctor\Scanning\RuleRegistry;
  * Lists every registered rule (built-in plus custom) so a developer
  * can see what the scanner is checking and find the id to pass to
  * `octane-doctor:rules:view` or `octane-doctor:scan --rule`. The
- * output is intentionally terse: id, severity, category, and title.
- * Run rules:view for the full description and remediation guidance.
+ * output is intentionally terse: id, severity, category, risk class,
+ * and title. Run rules:view for the full description and remediation
+ * guidance.
  */
 class RulesListCommand extends Command
 {
@@ -51,12 +52,13 @@ class RulesListCommand extends Command
                 $rule->id(),
                 $rule->severity()->value,
                 $rule->category()->value,
+                $rule->riskClass()->value,
                 $rule->title(),
             ],
             $rules,
         );
 
-        $this->table(['Rule id', 'Severity', 'Category', 'Title'], $rows);
+        $this->table(['Rule id', 'Severity', 'Category', 'Risk class', 'Title'], $rows);
 
         $this->line('Run octane-doctor:rules:view <rule-id> for the full description.');
     }
@@ -73,6 +75,7 @@ class RulesListCommand extends Command
                     'id' => $rule->id(),
                     'severity' => $rule->severity()->value,
                     'category' => $rule->category()->value,
+                    'risk_class' => $rule->riskClass()->value,
                     'title' => $rule->title(),
                 ],
                 $rules,
