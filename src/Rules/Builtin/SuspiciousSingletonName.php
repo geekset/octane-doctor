@@ -3,6 +3,7 @@
 namespace OctaneDoctor\Rules\Builtin;
 
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Rule;
@@ -83,6 +84,11 @@ class SuspiciousSingletonName implements Rule
         return Category::SingletonSafety;
     }
 
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
+    }
+
     public function explanation(): RuleExplanation
     {
         return new RuleExplanation(
@@ -138,6 +144,7 @@ class SuspiciousSingletonName implements Rule
                 title: $this->title(),
                 severity: $this->severity(),
                 category: $this->category(),
+                riskClass: $this->riskClass(),
                 summary: "Singleton {$abstract} is named like request-scoped state (matched '{$matched}').",
                 whyItMatters: 'Class names that include CurrentUser, TenantContext, or RequestState almost always hold the value for "the request right now". Binding such a class as a singleton means it keeps the value the worker captured first and never refreshes it.',
                 remediation: 'If the class genuinely represents per-request state, switch the binding to scoped() so a fresh instance is built each request. If the class is misnamed and is actually long-lived, rename it so the next reader is not misled.',

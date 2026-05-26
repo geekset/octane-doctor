@@ -3,6 +3,7 @@
 namespace OctaneDoctor;
 
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 
 final readonly class Finding
@@ -12,6 +13,7 @@ final readonly class Finding
         public string $title,
         public Severity $severity,
         public Category $category,
+        public RiskClass $riskClass,
         public string $summary,
         public string $whyItMatters,
         public string $remediation,
@@ -28,6 +30,7 @@ final readonly class Finding
             title: $this->title,
             severity: $this->severity,
             category: $this->category,
+            riskClass: $this->riskClass,
             summary: $this->summary,
             whyItMatters: $this->whyItMatters,
             remediation: $this->remediation,
@@ -72,6 +75,7 @@ final readonly class Finding
      *     title: string,
      *     severity: string,
      *     category: string,
+     *     risk_class: string,
      *     summary: string,
      *     why_it_matters: string,
      *     remediation: string,
@@ -89,6 +93,7 @@ final readonly class Finding
             'title' => $this->title,
             'severity' => $this->severity->value,
             'category' => $this->category->value,
+            'risk_class' => $this->riskClass->value,
             'summary' => $this->summary,
             'why_it_matters' => $this->whyItMatters,
             'remediation' => $this->remediation,

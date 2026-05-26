@@ -4,6 +4,7 @@ namespace OctaneDoctor\Rules\Builtin;
 
 use Illuminate\Contracts\Foundation\Application;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Rule;
@@ -55,6 +56,11 @@ class OctaneConfigCheck implements Rule
     public function category(): Category
     {
         return Category::Configuration;
+    }
+
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::RequestScopeMisuse;
     }
 
     public function explanation(): RuleExplanation
@@ -121,6 +127,7 @@ class OctaneConfigCheck implements Rule
             title: 'Laravel Octane is not installed',
             severity: Severity::Info,
             category: $this->category(),
+            riskClass: $this->riskClass(),
             summary: 'laravel/octane is not listed in composer.json.',
             whyItMatters: 'The other rules in this scan describe how this application would behave under Octane, but the host application is not actually running Octane yet. This is fine if you are still in the assessment phase; it is a problem if you expected Octane to already be in use.',
             remediation: 'If you intend to run on Octane, install it with composer require laravel/octane and follow the official setup. If you only wanted a readiness assessment, you can ignore this finding.',
@@ -134,6 +141,7 @@ class OctaneConfigCheck implements Rule
             title: 'Octane config has not been published',
             severity: Severity::Low,
             category: $this->category(),
+            riskClass: $this->riskClass(),
             summary: 'config/octane.php is missing.',
             whyItMatters: 'Octane is installed but the application is running entirely on the package defaults. Defaults can shift across Octane versions, and you cannot customise the flush, warm, or listener lists without publishing the config.',
             remediation: 'Run php artisan vendor:publish --provider="Laravel\\Octane\\OctaneServiceProvider" --tag=octane-config to publish the config file, then commit it so the application has explicit, reviewable Octane settings.',

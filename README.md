@@ -130,6 +130,7 @@ The JSON document is schema versioned and stable across point releases:
         "total": 2,
         "by_severity": { "high": 1, "medium": 1, "low": 0, "info": 0 },
         "by_category": { "static-state": 1, "singleton-safety": 1 },
+        "by_risk_class": { "data-leak": 2 },
         "scanned_paths": ["app", "config"],
         "duration_ms": 312.5,
         "baselined": 0,
@@ -140,6 +141,8 @@ The JSON document is schema versioned and stable across point releases:
         {
             "rule_id": "request-in-singleton",
             "severity": "high",
+            "category": "singleton-safety",
+            "risk_class": "data-leak",
             "file_path": "app/Services/ReportService.php",
             "fingerprint": "..."
         }
@@ -192,7 +195,7 @@ List every registered rule (built in plus anything in `custom_rules`):
 php artisan octane-doctor:rules:list
 ```
 
-The output is a terse table of id, severity, category, and title. Pass `--format=json` for a stable machine-readable shape that fits into a CI annotation step.
+The output is a terse table of id, severity, category, risk class, and title. Pass `--format=json` for a stable machine-readable shape that fits into a CI annotation step.
 
 When you want the full picture for one rule, look it up by id:
 
@@ -200,7 +203,7 @@ When you want the full picture for one rule, look it up by id:
 php artisan octane-doctor:rules:view request-in-singleton
 ```
 
-Output covers the title, severity, category, why it matters, remediation, and concrete examples that show a flagged form versus a safe form of the pattern.
+Output covers the title, severity, category, risk class, why it matters, remediation, and concrete examples that show a flagged form versus a safe form of the pattern.
 
 For tight iteration on a single rule, scope a scan to that rule alone:
 
@@ -255,14 +258,17 @@ The baseline workflow above is the right choice when you want to acknowledge tod
 
 ## Built in rules
 
-| Rule id | Severity | Category | What it flags |
-| --- | --- | --- | --- |
-| `mutable-static-state` | medium | static-state | Mutable static class or trait properties. |
-| `risky-helpers-in-constructor` | medium | request-state | Calls to `request()`, `auth()`, `session()`, or the matching facades inside a class constructor. |
-| `request-context-as-property` | high | request-state | Properties typed as Request, the auth guard, Route, or Session on long lived services. |
-| `container-as-property` | medium | container-lifecycle | The container or Application stored as an instance property. |
-| `request-in-singleton` | high | singleton-safety | Singleton bound services whose constructor accepts a request scoped framework object. |
-| `octane-config-check` | info / low | configuration | Octane not installed, or installed but `config/octane.php` not published. |
+| Rule id | Severity | Category | Risk class | What it flags |
+| --- | --- | --- | --- | --- |
+| `mutable-static-state` | medium | static-state | data-leak | Mutable static class or trait properties. |
+| `risky-helpers-in-constructor` | medium | request-state | data-leak | Calls to `request()`, `auth()`, `session()`, or the matching facades inside a class constructor. |
+| `request-context-as-property` | high | request-state | data-leak | Properties typed as Request, the auth guard, Route, or Session on long lived services. |
+| `container-as-property` | medium | container-lifecycle | request-scope-misuse | The container or Application stored as an instance property. |
+| `request-in-singleton` | high | singleton-safety | data-leak | Singleton bound services whose constructor accepts a request scoped framework object. |
+| `suspicious-singleton-name` | medium | singleton-safety | data-leak | Singleton bindings whose class name implies per-request state (CurrentUser, TenantContext, etc). |
+| `octane-config-check` | info / low | configuration | request-scope-misuse | Octane not installed, or installed but `config/octane.php` not published. |
+
+`category` groups rules by the subject area they inspect; `risk_class` answers "what kind of damage if this rule is violated under a long-lived worker". The two axes are independent: filter by category to triage by code area, group by risk class for ticketing and onboarding briefs.
 
 Each rule contains a per dispatch and per request safe list so events, mailables, notifications, form requests, and controllers are not flagged for patterns that are documented Laravel idioms in those contexts.
 
@@ -277,6 +283,7 @@ namespace App\Octane\Rules;
 
 use App\Tenancy\TenantContext;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Rule;
@@ -305,6 +312,11 @@ class ForbidTenantContextSingleton implements Rule
         return Category::SingletonSafety;
     }
 
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
+    }
+
     public function explanation(): RuleExplanation
     {
         return new RuleExplanation(
@@ -330,6 +342,7 @@ class ForbidTenantContextSingleton implements Rule
             title: $this->title(),
             severity: $this->severity(),
             category: $this->category(),
+            riskClass: $this->riskClass(),
             summary: TenantContext::class.' is bound as a singleton.',
             whyItMatters: $this->explanation()->whyItMatters,
             remediation: $this->explanation()->remediation,

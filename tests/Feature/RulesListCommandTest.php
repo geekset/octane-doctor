@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Artisan;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Rules\Rule;
 use OctaneDoctor\Rules\RuleExplanation;
@@ -29,6 +30,11 @@ class RulesListFixtureRule implements Rule
         return Category::StaticState;
     }
 
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
+    }
+
     public function explanation(): RuleExplanation
     {
         return new RuleExplanation(whyItMatters: 'fixture', remediation: 'fixture');
@@ -51,7 +57,8 @@ it('lists every registered rule in the table output', function () {
         ->and($output)->toContain('fixture-list-rule')
         ->and($output)->toContain('Fixture list rule')
         ->and($output)->toContain('medium')
-        ->and($output)->toContain('static-state');
+        ->and($output)->toContain('static-state')
+        ->and($output)->toContain('data-leak');
 });
 
 it('emits the rule list as JSON when --format=json is set', function () {
@@ -68,6 +75,7 @@ it('emits the rule list as JSON when --format=json is set', function () {
         ->toHaveKey('id', 'fixture-list-rule')
         ->toHaveKey('severity', 'medium')
         ->toHaveKey('category', 'static-state')
+        ->toHaveKey('risk_class', 'data-leak')
         ->toHaveKey('title', 'Fixture list rule');
 });
 

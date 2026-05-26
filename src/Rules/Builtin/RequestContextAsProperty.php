@@ -5,6 +5,7 @@ namespace OctaneDoctor\Rules\Builtin;
 use OctaneDoctor\Ast\FileWalker;
 use OctaneDoctor\Ast\ParsedFile;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\AstVisitingRule;
@@ -106,6 +107,11 @@ class RequestContextAsProperty implements AstVisitingRule
     public function category(): Category
     {
         return Category::RequestState;
+    }
+
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
     }
 
     public function explanation(): RuleExplanation
@@ -304,6 +310,7 @@ class RequestContextAsProperty implements AstVisitingRule
                 title: $this->title(),
                 severity: $this->severity(),
                 category: $this->category(),
+                riskClass: $this->riskClass(),
                 summary: "Class {$hit['className']} stores {$hit['typeName']} on property \${$hit['propertyName']}.",
                 whyItMatters: 'Under Octane the same object instance is reused across requests. A property holding the current Request, auth guard, route, or session freezes to the request that constructed the class and stays stale for every later request.',
                 remediation: 'Receive the request-scoped object as a method parameter, resolve it on demand through the container, or move the binding to scoped() so a fresh instance is built per request.',

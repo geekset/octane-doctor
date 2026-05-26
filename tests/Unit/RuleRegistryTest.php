@@ -1,6 +1,7 @@
 <?php
 
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Exceptions\InvalidRule;
 use OctaneDoctor\Rules\Rule;
@@ -28,6 +29,11 @@ class RegistryFixtureRule implements Rule
     public function category(): Category
     {
         return Category::UnknownRisk;
+    }
+
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
     }
 
     public function explanation(): RuleExplanation
@@ -59,3 +65,13 @@ it('rejects classes that do not implement the Rule contract', function () {
 
     $registry->all();
 })->throws(InvalidRule::class);
+
+it('declares a risk class for every built-in rule', function () {
+    $builtIn = (array) config('octane-doctor.rules', []);
+
+    $registry = new RuleRegistry(app(), $builtIn, []);
+
+    foreach ($registry->all() as $rule) {
+        expect($rule->riskClass())->toBeInstanceOf(RiskClass::class);
+    }
+});

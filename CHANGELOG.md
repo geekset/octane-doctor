@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased](https://github.com/octane-doctor/octane-doctor/compare/0.8.0...HEAD)
 
+### Added
+
+- New `RiskClass` axis on every rule and finding (`data-leak`, `memory-leak`, `request-scope-misuse`, `deprecation`, `performance`). Orthogonal to the existing `Category` axis: category answers "what subject does this rule inspect", risk class answers "what kind of damage when violated under a long-lived worker". Surfaced in `rules:list`, `rules:view`, the scan JSON output (`risk_class` per finding, `by_risk_class` summary), and the `Rule` contract. Custom rules now implement a `riskClass(): RiskClass` method.
+
+### Breaking change
+
+- The `Rule` contract gained a required `riskClass(): RiskClass` method. The `Finding` constructor gained a required `riskClass: RiskClass` parameter. Any project with custom rules or programmatic `Finding` construction must update them; the fingerprint algorithm is unchanged so existing baselines remain valid.
+
 ## [0.8.0](https://github.com/octane-doctor/octane-doctor/compare/0.7.0...0.8.0) - 2026-05-18
 
 ### Breaking change

@@ -1,6 +1,7 @@
 <?php
 
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Builtin\RequestInSingleton;
@@ -132,5 +133,6 @@ it('produces findings with the expected metadata', function () {
         ->and($finding->ruleId)->toBe('request-in-singleton')
         ->and($finding->severity)->toBe(Severity::High)
         ->and($finding->category)->toBe(Category::SingletonSafety)
+        ->and($finding->riskClass)->toBe(RiskClass::DataLeak)
         ->and($finding->symbol)->toEndWith('::__construct');
 });

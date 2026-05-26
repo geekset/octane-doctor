@@ -5,6 +5,7 @@ namespace OctaneDoctor\Rules\Builtin;
 use OctaneDoctor\Ast\FileWalker;
 use OctaneDoctor\Ast\ParsedFile;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\AstVisitingRule;
@@ -113,6 +114,11 @@ class MutableStaticState implements AstVisitingRule
     public function category(): Category
     {
         return Category::StaticState;
+    }
+
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::DataLeak;
     }
 
     public function explanation(): RuleExplanation
@@ -237,6 +243,7 @@ class MutableStaticState implements AstVisitingRule
                 title: $this->title(),
                 severity: $this->severity(),
                 category: $this->category(),
+                riskClass: $this->riskClass(),
                 summary: "Class {$hit['className']} declares mutable static property \${$hit['propertyName']}.",
                 whyItMatters: 'Static class properties persist across requests under Octane workers. Any mutation written during one request stays visible to every subsequent request handled by the same worker.',
                 remediation: 'Move the state onto an instance, behind a scoped() container binding, or into a per-request cache. If the value is constant, use a class constant instead.',

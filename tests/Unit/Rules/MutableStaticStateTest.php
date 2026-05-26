@@ -2,6 +2,7 @@
 
 use OctaneDoctor\Ast\FileWalker;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\Builtin\MutableStaticState;
@@ -54,6 +55,7 @@ it('produces findings with the expected metadata', function () {
         ->and($finding->ruleId)->toBe('mutable-static-state')
         ->and($finding->severity)->toBe(Severity::Medium)
         ->and($finding->category)->toBe(Category::StaticState)
+        ->and($finding->riskClass)->toBe(RiskClass::DataLeak)
         ->and($finding->filePath)->toEndWith('BadCounter.php')
         ->and($finding->line)->toBeGreaterThan(0);
 });

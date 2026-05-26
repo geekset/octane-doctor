@@ -39,6 +39,7 @@ class RulesViewCommand extends Command
         $this->line("Title: {$rule->title()}");
         $this->line("Severity: {$rule->severity()->value}");
         $this->line("Category: {$rule->category()->value}");
+        $this->line("Risk class: {$rule->riskClass()->value}");
         $this->line('');
         $this->line('Why it matters:');
         $this->line('  '.$explanation->whyItMatters);

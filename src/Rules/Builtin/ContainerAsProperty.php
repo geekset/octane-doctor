@@ -5,6 +5,7 @@ namespace OctaneDoctor\Rules\Builtin;
 use OctaneDoctor\Ast\FileWalker;
 use OctaneDoctor\Ast\ParsedFile;
 use OctaneDoctor\Enums\Category;
+use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
 use OctaneDoctor\Finding;
 use OctaneDoctor\Rules\AstVisitingRule;
@@ -104,6 +105,11 @@ class ContainerAsProperty implements AstVisitingRule
     public function category(): Category
     {
         return Category::ContainerLifecycle;
+    }
+
+    public function riskClass(): RiskClass
+    {
+        return RiskClass::RequestScopeMisuse;
     }
 
     public function explanation(): RuleExplanation
@@ -289,6 +295,7 @@ class ContainerAsProperty implements AstVisitingRule
                 title: $this->title(),
                 severity: $this->severity(),
                 category: $this->category(),
+                riskClass: $this->riskClass(),
                 summary: "Class {$hit['className']} stores {$hit['typeName']} on property \${$hit['propertyName']}.",
                 whyItMatters: 'Under Octane the same service instance is reused across requests, and keeping the container or Application as a property usually leads to caching resolved dependencies on the same instance. Anything resolved that way captures the request that triggered the resolution and stays stale for every later request.',
                 remediation: 'Receive the specific dependency you actually need through constructor injection or a method parameter. If you genuinely need late-binding resolution, call app() or App::make() at the moment of use rather than once at construction time.',
