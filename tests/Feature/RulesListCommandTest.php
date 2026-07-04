@@ -56,7 +56,7 @@ it('lists every registered rule in the table output', function () {
     expect($exit)->toBe(0)
         ->and($output)->toContain('fixture-list-rule')
         ->and($output)->toContain('Fixture list rule')
-        ->and($output)->toContain('medium')
+        ->and($output)->toContain('MEDIUM')
         ->and($output)->toContain('static-state')
         ->and($output)->toContain('data-leak');
 });

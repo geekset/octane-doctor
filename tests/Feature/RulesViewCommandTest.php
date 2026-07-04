@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use OctaneDoctor\Enums\Category;
 use OctaneDoctor\Enums\RiskClass;
 use OctaneDoctor\Enums\Severity;
@@ -54,17 +55,19 @@ it('shows the full explanation for the requested rule', function () {
     config()->set('octane-doctor.rules', [RulesViewFixtureRule::class]);
     config()->set('octane-doctor.custom_rules', []);
 
-    $this->artisan('octane-doctor:rules:view', ['rule' => 'fixture-view-rule'])
-        ->expectsOutputToContain('Rule: fixture-view-rule')
-        ->expectsOutputToContain('Title: Fixture view rule')
-        ->expectsOutputToContain('Severity: high')
-        ->expectsOutputToContain('Category: singleton-safety')
-        ->expectsOutputToContain('Risk class: data-leak')
-        ->expectsOutputToContain('It captures stale state.')
-        ->expectsOutputToContain('Switch to scoped().')
-        ->expectsOutputToContain('$this->app->scoped(Foo::class);')
-        ->expectsOutputToContain('Docs: https://example.test/docs/fixture-view-rule')
-        ->assertExitCode(0);
+    $exit = Artisan::call('octane-doctor:rules:view', ['rule' => 'fixture-view-rule']);
+    $output = Artisan::output();
+
+    expect($exit)->toBe(0)
+        ->and($output)->toContain('fixture-view-rule')
+        ->and($output)->toContain('Fixture view rule')
+        ->and($output)->toContain('HIGH')
+        ->and($output)->toContain('Category: singleton-safety')
+        ->and($output)->toContain('Risk class: data-leak')
+        ->and($output)->toContain('It captures stale state.')
+        ->and($output)->toContain('Switch to scoped().')
+        ->and($output)->toContain('$this->app->scoped(Foo::class);')
+        ->and($output)->toContain('https://example.test/docs/fixture-view-rule');
 });
 
 it('fails gracefully when the rule id is unknown', function () {

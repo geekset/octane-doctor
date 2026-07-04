@@ -3,8 +3,11 @@
 namespace OctaneDoctor\Commands;
 
 use Illuminate\Console\Command;
+use OctaneDoctor\Commands\Concerns\RendersTermwind;
 use OctaneDoctor\Rules\Rule;
 use OctaneDoctor\Scanning\RuleRegistry;
+
+use function Termwind\render;
 
 /**
  * Lists every registered rule (built-in plus custom) so a developer
@@ -16,6 +19,8 @@ use OctaneDoctor\Scanning\RuleRegistry;
  */
 class RulesListCommand extends Command
 {
+    use RendersTermwind;
+
     public $signature = 'octane-doctor:rules:list
         {--format= : Output format (table, json)}';
 
@@ -37,7 +42,7 @@ class RulesListCommand extends Command
             return self::SUCCESS;
         }
 
-        $this->renderTable($rules);
+        $this->renderList($rules);
 
         return self::SUCCESS;
     }
@@ -45,22 +50,40 @@ class RulesListCommand extends Command
     /**
      * @param  array<int, Rule>  $rules
      */
-    protected function renderTable(array $rules): void
+    protected function renderList(array $rules): void
     {
-        $rows = array_map(
-            fn (Rule $rule) => [
-                $rule->id(),
-                $rule->severity()->value,
-                $rule->category()->value,
-                $rule->riskClass()->value,
-                $rule->title(),
-            ],
-            $rules,
-        );
+        $this->useTermwind();
 
-        $this->table(['Rule id', 'Severity', 'Category', 'Risk class', 'Title'], $rows);
+        foreach ($rules as $rule) {
+            $this->renderRule($rule);
+        }
 
-        $this->line('Run octane-doctor:rules:view <rule-id> for the full description.');
+        render(<<<'HTML'
+            <div class="mx-2 mt-1 text-gray">Run <span class="font-bold">octane-doctor:rules:view &lt;rule-id&gt;</span> for the full description.</div>
+        HTML);
+    }
+
+    protected function renderRule(Rule $rule): void
+    {
+        [$badgeBg, $badgeText] = $this->severityBadgeClasses($rule->severity());
+
+        $severity = strtoupper($rule->severity()->value);
+        $ruleId = $this->escape($rule->id());
+        $category = $this->escape($rule->category()->value);
+        $riskClass = $this->escape($rule->riskClass()->value);
+        $title = $this->escape($rule->title());
+
+        render(<<<HTML
+            <div class="mx-2 mt-1">
+                <span class="px-1 {$badgeBg} {$badgeText} font-bold">{$severity}</span>
+                <span class="ml-1 font-bold">{$ruleId}</span>
+                <span class="ml-1 text-gray">{$category} · {$riskClass}</span>
+            </div>
+        HTML);
+
+        render(<<<HTML
+            <div class="mx-2 ml-4 text-gray">{$title}</div>
+        HTML);
     }
 
     /**

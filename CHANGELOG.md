@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - New `RiskClass` axis on every rule and finding (`data-leak`, `memory-leak`, `request-scope-misuse`, `deprecation`, `performance`). Orthogonal to the existing `Category` axis: category answers "what subject does this rule inspect", risk class answers "what kind of damage when violated under a long-lived worker". Surfaced in `rules:list`, `rules:view`, the scan JSON output (`risk_class` per finding, `by_risk_class` summary), and the `Rule` contract. Custom rules now implement a `riskClass(): RiskClass` method.
 
+### Changed
+
+- The `rules:list`, `rules:view`, and `baseline` commands now render their output with Termwind, matching the styling of `scan`. Severity badges are colored, `rules:view` presents Why and Fix sections like a scan finding, and `baseline` uses the same warning and confirmation blocks. Shared rendering helpers moved into a new `RendersTermwind` command concern.
+
 ### Breaking change
 
 - The `Rule` contract gained a required `riskClass(): RiskClass` method. The `Finding` constructor gained a required `riskClass: RiskClass` parameter. Any project with custom rules or programmatic `Finding` construction must update them; the fingerprint algorithm is unchanged so existing baselines remain valid.

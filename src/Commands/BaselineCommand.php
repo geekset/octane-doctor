@@ -5,10 +5,13 @@ namespace OctaneDoctor\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Foundation\Application;
 use OctaneDoctor\Baseline\BaselineRepository;
+use OctaneDoctor\Commands\Concerns\RendersTermwind;
 use OctaneDoctor\Commands\Concerns\ResolvesScanPaths;
 use OctaneDoctor\Scanning\RuleRegistry;
 use OctaneDoctor\Scanning\ScanContext;
 use OctaneDoctor\Scanning\Scanner;
+
+use function Termwind\render;
 
 /**
  * Snapshots the current scan results to a baseline file. Future runs
@@ -19,6 +22,7 @@ use OctaneDoctor\Scanning\Scanner;
  */
 class BaselineCommand extends Command
 {
+    use RendersTermwind;
     use ResolvesScanPaths;
 
     public $signature = 'octane-doctor:baseline
@@ -36,11 +40,11 @@ class BaselineCommand extends Command
             return self::FAILURE;
         }
 
+        $this->useTermwind();
+
         $pathInfo = $this->resolvePathInfo();
 
-        foreach ($pathInfo['missing'] as $missing) {
-            $this->warn("WARNING: configured scan path does not exist: {$missing}");
-        }
+        $this->renderMissingPathWarnings($pathInfo['missing']);
 
         $context = new ScanContext($app, $pathInfo['resolved'], $app->basePath());
         $scanner = new Scanner($registry->all());
@@ -49,12 +53,16 @@ class BaselineCommand extends Command
 
         $baseline = $repository->save($path, $result->findings);
 
-        $this->info(sprintf(
-            'Recorded %d finding%s in baseline at %s.',
-            $baseline->count(),
-            $baseline->count() === 1 ? '' : 's',
-            $path,
-        ));
+        $count = $baseline->count();
+        $word = $count === 1 ? 'finding' : 'findings';
+        $escapedPath = $this->escape($path);
+
+        render(<<<HTML
+            <div class="mx-2 my-1">
+                <span class="px-1 bg-green-600 text-white font-bold">SAVED</span>
+                <span class="ml-1">Recorded {$count} {$word} in baseline at {$escapedPath}.</span>
+            </div>
+        HTML);
 
         return self::SUCCESS;
     }
