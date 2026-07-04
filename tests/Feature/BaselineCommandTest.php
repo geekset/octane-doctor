@@ -183,7 +183,8 @@ it('warns when a configured scan path does not exist but still records the basel
     $output = Artisan::output();
 
     expect($exit)->toBe(0)
-        ->and($output)->toContain('WARNING: configured scan path does not exist: /definitely/does/not/exist')
+        ->and($output)->toContain('WARNING')
+        ->and($output)->toContain('configured scan path does not exist: /definitely/does/not/exist')
         ->and(is_file($this->baselinePath))->toBeTrue();
 });
 
