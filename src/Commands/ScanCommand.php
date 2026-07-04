@@ -76,9 +76,9 @@ class ScanCommand extends Command
         $baselinedCount = $afterIgnore->count() - $filtered->count();
 
         if ($isJson) {
-            $stray = ob_get_clean();
+            $stray = (string) ob_get_clean();
 
-            if (is_string($stray) && $stray !== '' && defined('STDERR')) {
+            if ($stray !== '' && defined('STDERR')) {
                 fwrite(STDERR, $stray);
             }
 
